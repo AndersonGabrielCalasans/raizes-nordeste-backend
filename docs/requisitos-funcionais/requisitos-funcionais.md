@@ -8,9 +8,9 @@
 - [RF01 — Cadastrar usuários e definir perfil e unidade](#rf01--cadastrar-usuários-e-definir-perfil-e-unidade)
 - [RF02 — Autenticar usuários e controlar acesso](#rf02--autenticar-usuários-e-controlar-acesso)
 - [RF03 — Cadastrar e consultar unidades da rede](#rf03--cadastrar-e-consultar-unidades-da-rede)
-- [RF04 — Consultar cardápio por unidade](#rf04--consultar-cardápio-por-unidade)
-- [RF05 — Criar pedidos com itens, quantidades, valores e canal de origem](#rf05--criar-pedidos-com-itens-quantidades-valores-e-canal-de-origem)
-- [Fontes](#fontes)
+- [RF04 — Gerir produtos e consultar cardápio por unidade](#rf04--gerir-produtos-e-consultar-cardápio-por-unidade)
+- [RF05 — Criar e consultar pedidos por canal](#rf05--criar-e-consultar-pedidos-por-canal)
+- [RF06 — Atualizar status e cancelar pedidos](#rf06--atualizar-status-e-cancelar-pedidos)
 
 ## Fluxo principal e justificativa
 
@@ -105,11 +105,11 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 
 [Voltar ao topo](#requisitos-funcionais)
 
-## RF04 — Consultar cardápio por unidade
+## RF04 — Gerir produtos e consultar cardápio por unidade
 
-**Descrição:** Permitir a consulta pública dos produtos disponíveis no cardápio de uma unidade da rede.
+**Descrição:** Permitir a consulta pública dos produtos disponíveis no cardápio de uma unidade e descrever a gestão de produtos, preços e associações ao cardápio pelo Administrador.
 
-**Atores:** Qualquer solicitante, sem necessidade de autenticação.
+**Atores:** qualquer solicitante na consulta pública; Administrador na gestão conceitual.
 
 **Dados:** Identificador do produto, nome, descrição, preço e disponibilidade na unidade consultada.
 
@@ -118,7 +118,8 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 - A consulta deve indicar uma unidade existente e não exige autenticação.
 - O cardápio apresenta somente produtos associados à unidade consultada e disponíveis nela, com os respectivos preços dessa unidade.
 - Produtos não associados à unidade e produtos indisponíveis nela são omitidos. A presença ou disponibilidade de um produto em outra unidade não determina sua exibição na unidade consultada.
-- No MVP, produtos, preços e associações iniciais ao cardápio são previamente cadastrados na preparação do ambiente. A gestão desses dados pelo Administrador possui cobertura conceitual no requisito próprio de gestão de produtos e configuração do cardápio.
+- No MVP, produtos, preços e associações iniciais ao cardápio são previamente cadastrados na preparação do ambiente.
+- Na gestão conceitual, somente o Administrador cadastra ou altera produtos e configura preços e associações ao cardápio de unidades existentes. A operação exige dados válidos e mantém a identificação dos produtos e das unidades nas alterações.
 
 **Critérios de aceitação:**
 
@@ -127,16 +128,18 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 3. Uma unidade sem produtos associados ou sem produtos disponíveis retorna um cardápio vazio.
 4. Um produto associado e disponível em uma unidade é exibido no cardápio dela; em outra unidade, se não associado ou indisponível, é omitido.
 5. Quando um mesmo produto está disponível em duas unidades, cada consulta apresenta o preço correspondente à unidade consultada.
+6. Na cobertura conceitual, um Administrador autenticado cadastra ou altera um produto e configura seu preço e associação a uma unidade existente; a consulta dessa unidade reflete a configuração quando o produto está disponível.
+7. Na cobertura conceitual, gestão sem permissão, com dados inválidos ou referência a produto ou unidade inexistente é recusada, sem alteração parcial. A exigência de produto existente aplica-se à alteração e à configuração, não ao cadastro inicial.
 
 **Cobertura:** consulta pública do cardápio por unidade, filtro de disponibilidade e provisionamento dos produtos, preços e associações iniciais terão implementação no MVP. Cadastro e alteração de produtos e configuração do cardápio pelo Administrador permanecem conceituais, conforme o recorte de gestão aprovado.
 
 [Voltar ao topo](#requisitos-funcionais)
 
-## RF05 — Criar pedidos com itens, quantidades, valores e canal de origem
+## RF05 — Criar e consultar pedidos por canal
 
-**Descrição:** Permitir a criação de pedidos para uma unidade da rede, registrando itens, quantidades, valores, canal de origem e status inicial.
+**Descrição:** Permitir a criação e consulta de pedidos, registrando unidade, itens, quantidades, valores, canal de origem e status, com filtro por canal e restrições de acesso.
 
-**Atores:** Cliente autenticado em APP ou WEB; Atendente autenticado em BALCAO e, conceitualmente, TOTEM.
+**Atores:** Cliente e Atendente na criação e consulta; Cozinha e Administrador na consulta. TOTEM possui cobertura conceitual com credencial de Atendente.
 
 **Dados:** Identificador do pedido, unidade, canal de origem, itens com identificador do produto, quantidade, preço unitário e subtotal, valor total e status. Em APP e WEB, o pedido também possui vínculo com o Cliente autenticado.
 
@@ -147,8 +150,11 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 - APP e WEB exigem Cliente autenticado e vinculam o pedido a ele. BALCAO exige Atendente autenticado e registra pedido anônimo, sem cadastro de Cliente. TOTEM utiliza credencial de Atendente, com cobertura apenas conceitual.
 - O pedido deve conter ao menos um item. Cada quantidade deve ser inteira e positiva; os produtos devem estar associados e disponíveis na unidade escolhida, conforme suas restrições de estoque.
 - O sistema calcula o preço unitário a partir do cardápio da unidade, o subtotal pela multiplicação do preço pela quantidade e o total pela soma dos subtotais. Valores informados pelo solicitante não substituem esse cálculo.
-- Um pedido criado com sucesso recebe o status AGUARDANDO_PAGAMENTO;
+- Um pedido criado com sucesso recebe o status AGUARDANDO_PAGAMENTO.
 - A recusa por dados inválidos, falta de disponibilidade ou ausência de permissão não deve gerar pedido parcial.
+- A consulta por identificador e a listagem com filtro por canal apresentam os dados registrados e o status atual. Canal não previsto é recusado; ausência de resultados permitidos retorna lista vazia.
+- Cliente consulta somente seus pedidos. Atendente consulta os pedidos de sua unidade. Administrador pode consultar pedidos das unidades da rede. O filtro por canal não amplia as permissões.
+- Cozinha consulta somente pedidos de sua unidade: pedidos BALCAO são visíveis mesmo sem pagamento aprovado e podem ter o preparo iniciado nessa condição; pedidos APP, WEB e, conceitualmente, TOTEM somente são visíveis e podem ter o preparo iniciado após aprovação do pagamento. As transições de status e suas permissões são detalhadas no RF06.
 
 **Critérios de aceitação:**
 
@@ -158,7 +164,43 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 4. Unidade inexistente, ausência de itens, quantidade zero, negativa ou não inteira, produto inexistente, não associado ou indisponível na unidade impedem a criação, sem registro parcial.
 5. Os preços registrados correspondem ao cardápio da unidade; os subtotais correspondem ao preço unitário multiplicado pela quantidade e o total à soma dos subtotais, sem aceitar alteração desses valores pelo solicitante.
 6. Na cobertura conceitual de TOTEM, credencial válida de Atendente e itens válidos permitem criar pedido somente na unidade de atuação, com valores calculados e status AGUARDANDO_PAGAMENTO; credencial inválida ou unidade não autorizada impedem a criação.
+7. A consulta de pedido existente e permitido retorna seus dados e status atual; pedido inexistente ou fora do acesso permitido não tem seus dados expostos.
+8. A listagem filtrada por canal retorna somente pedidos desse canal dentro do acesso permitido. Filtro inválido é recusado; sem resultados permitidos, retorna lista vazia.
+9. Cliente não consulta pedidos de outro Cliente; Atendente e Cozinha não consultam pedidos de outra unidade, inclusive por identificador ou filtro. Administrador consegue consultar pedidos de diferentes unidades.
+10. Cozinha consegue consultar um pedido BALCAO de sua unidade sem pagamento aprovado. Pedidos APP e WEB não são exibidos nem acessíveis diretamente antes da aprovação, e passam a ser consultáveis após aprovação. A mesma restrição aplica-se conceitualmente a TOTEM.
 
-**Cobertura:** Criação de pedidos em APP, WEB e BALCAO, validações, cálculo dos valores, vínculo por unidade e status inicial terão implementação no backend do MVP. TOTEM possui cobertura apenas conceitual; seu critério não integra os testes executáveis do MVP. Interfaces dos canais não fazem parte deste requisito de backend.
+**Cobertura:** Criação e consulta de pedidos em APP, WEB e BALCAO, filtro por canal, validações, cálculo dos valores, vínculo por unidade, status inicial e restrições de consulta terão implementação no backend do MVP. TOTEM possui cobertura apenas conceitual; seus critérios não integram os testes executáveis do MVP. Interfaces dos canais não fazem parte deste requisito de backend.
+
+[Voltar ao topo](#requisitos-funcionais)
+
+## RF06 — Atualizar status e cancelar pedidos
+
+**Descrição:** Permitir a evolução do pedido até sua conclusão ou cancelamento, respeitando status atual, canal, aprovação do pagamento, perfil e unidade de atuação.
+
+**Atores:** Cozinha no preparo; Atendente na conclusão e no cancelamento; Cliente no cancelamento dos próprios pedidos; Administrador no cancelamento entre unidades; sistema na atualização decorrente de pagamento aprovado.
+
+**Dados:** identificador do pedido, canal, unidade, status atual, status solicitado e situação do pagamento.
+
+**Regras:**
+
+- Os status são AGUARDANDO_PAGAMENTO, RECEBIDO, EM_PREPARO, PRONTO, CONCLUIDO e CANCELADO. O status inicial é AGUARDANDO_PAGAMENTO.
+- A aprovação do pagamento altera AGUARDANDO_PAGAMENTO para RECEBIDO. A Cozinha da unidade altera RECEBIDO para EM_PREPARO e EM_PREPARO para PRONTO. O Atendente da unidade altera PRONTO para CONCLUIDO somente com pagamento aprovado.
+- Em BALCAO, a Cozinha pode também alterar AGUARDANDO_PAGAMENTO diretamente para EM_PREPARO, antes do pagamento. Em APP, WEB e, conceitualmente, TOTEM, iniciar preparo exige pagamento aprovado.
+- O pagamento aprovado de BALCAO já EM_PREPARO ou PRONTO é registrado sem retroceder o status para RECEBIDO. Status operacional e situação do pagamento são verificados separadamente.
+- Somente pedidos AGUARDANDO_PAGAMENTO ou RECEBIDO podem ser cancelados. O Cliente cancela somente seus pedidos; Atendente cancela pedidos de sua unidade; Administrador cancela pedidos das unidades da rede.
+- CONCLUIDO e CANCELADO são finais. Transições não previstas, inclusive regressões, são recusadas; aprovação de pagamento não reabre pedido cancelado.
+- Operações sem autenticação, sem permissão, fora da unidade autorizada ou para pedido inexistente são recusadas, preservando os dados anteriores.
+
+**Critérios de aceitação:**
+
+1. Um pedido AGUARDANDO_PAGAMENTO passa para RECEBIDO após aprovação do pagamento; a Cozinha da unidade pode iniciar o preparo e marcar o pedido como PRONTO, nessa ordem.
+2. A Cozinha da unidade consegue iniciar preparo de BALCAO ainda AGUARDANDO_PAGAMENTO. A mesma tentativa para APP ou WEB sem pagamento aprovado é recusada; a restrição aplica-se conceitualmente a TOTEM.
+3. Quando o pagamento de BALCAO é aprovado com pedido EM_PREPARO ou PRONTO, a situação do pagamento é atualizada e o status operacional é preservado.
+4. Um Atendente da unidade conclui um pedido PRONTO com pagamento aprovado. Pedido não pronto ou sem pagamento aprovado não pode ser concluído.
+5. Cliente proprietário, Atendente da unidade ou Administrador consegue cancelar pedido AGUARDANDO_PAGAMENTO ou RECEBIDO, alterando seu status para CANCELADO. Cancelamento a partir de EM_PREPARO, PRONTO ou CONCLUIDO é recusado.
+6. Tentativas de cancelar pedido de outro Cliente, atuar em outra unidade sem permissão, executar transição por perfil incompatível ou alterar pedido inexistente são recusadas, sem modificar dados.
+7. Tentativas de regressão, salto não previsto ou alteração de status CONCLUIDO ou CANCELADO são recusadas. Um retorno de pagamento aprovado não reabre pedido CANCELADO.
+
+**Cobertura:** transições, permissões, exceção de preparo antecipado em BALCAO, conclusão condicionada ao pagamento e cancelamento terão implementação no MVP. As regras correspondentes a TOTEM possuem cobertura apenas conceitual e não integram os testes executáveis do MVP. Efeitos de cancelamento sobre estoque e pagamento são tratados nos requisitos próprios.
 
 [Voltar ao topo](#requisitos-funcionais)
