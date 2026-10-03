@@ -8,6 +8,8 @@
 - [RF01 — Cadastrar usuários e definir perfil e unidade](#rf01--cadastrar-usuários-e-definir-perfil-e-unidade)
 - [RF02 — Autenticar usuários e controlar acesso](#rf02--autenticar-usuários-e-controlar-acesso)
 - [RF03 — Cadastrar e consultar unidades da rede](#rf03--cadastrar-e-consultar-unidades-da-rede)
+- [RF04 — Consultar cardápio por unidade](#rf04--consultar-cardápio-por-unidade)
+- [RF05 — Criar pedidos com itens, quantidades, valores e canal de origem](#rf05--criar-pedidos-com-itens-quantidades-valores-e-canal-de-origem)
 - [Fontes](#fontes)
 
 ## Fluxo principal e justificativa
@@ -56,10 +58,11 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 
 - Credenciais válidas permitem a emissão de um token JWT. As operações protegidas exigem token válido, com assinatura e prazo de validade verificados.
 - Credenciais inválidas produzem a mensagem “E-mail ou senha inválidos”, sem revelar se o e-mail está cadastrado.
-- A consulta do cardápio é pública. O Cliente deve se autenticar para criar pedidos pelo aplicativo e consultar somente os próprios pedidos.
+- A consulta do cardápio é pública. Os canais APP e WEB exigem Cliente autenticado para criar pedidos; o Cliente consulta somente os próprios pedidos.
 - Atendente e Cozinha acessam apenas operações permitidas ao seu perfil e dados da sua unidade de atuação. O Administrador acessa as operações administrativas das unidades da rede.
 - A ausência de token ou apresentação de token inválido ou expirado impede o acesso às operações protegidas. Autenticação válida não autoriza operações incompatíveis com o perfil, acesso a pedidos de outros clientes ou operações fora da unidade permitida.
 - Pedidos anônimos no balcão dispensam conta de Cliente, mas exigem Atendente autenticado. A vinculação ao Cliente autenticado é conceitual.
+- Os canais de origem são APP, TOTEM, BALCAO e WEB. BALCAO representa o atendimento no balcão. Na cobertura conceitual, TOTEM utiliza credencial do perfil Atendente, respeitando sua unidade de atuação.
 
 **Critérios de aceitação:**
 
@@ -69,8 +72,10 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 4. Com token válido, as operações autorizadas são permitidas; operações incompatíveis com o perfil são recusadas.
 5. Um Cliente não consegue consultar pedidos de outro Cliente. Atendente e Cozinha não conseguem acessar operações ou dados de outra unidade.
 6. Um Atendente autenticado consegue registrar pedido de balcão sem cadastro de Cliente; a mesma operação sem autenticação é recusada.
+7. Nos canais APP e WEB, a criação de pedido exige Cliente autenticado; sem autenticação ou com perfil incompatível, a operação é recusada.
+8. Na cobertura conceitual de TOTEM, a criação de pedido exige credencial válida de Atendente e respeita o vínculo com a unidade; credencial inválida ou operação em outra unidade é recusada.
 
-**Cobertura:** autenticação por JWT, autorização por perfil, restrições por unidade e propriedade de pedidos terão implementação no MVP. A vinculação de pedido de balcão a Cliente autenticado permanece conceitual: somente uma autenticação bem-sucedida do próprio Cliente pode autorizar o vínculo; informar apenas seu CPF não deve permitir essa associação.
+**Cobertura:** autenticação por JWT, autorização por perfil, restrições por unidade e propriedade de pedidos terão implementação no MVP, abrangendo APP, WEB e BALCAO no backend. TOTEM possui cobertura apenas conceitual; seu critério não integra os testes executáveis do MVP. A vinculação de pedido de balcão a Cliente autenticado permanece conceitual: somente uma autenticação bem-sucedida do próprio Cliente pode autorizar o vínculo; informar apenas seu CPF não deve permitir essa associação.
 
 [Voltar ao topo](#requisitos-funcionais)
 
@@ -100,11 +105,60 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 
 [Voltar ao topo](#requisitos-funcionais)
 
-## Fontes
+## RF04 — Consultar cardápio por unidade
 
-- **Roteiro de Atividade Prática — Projeto Back-End:** páginas 5–6 do PDF, cadastro, autenticação, perfis, controle de acesso e unidades da rede; página 9, privacidade e segurança; página 11, cenários de autenticação e autorização.
-- **Projeto Multidisciplinar — Estudo de Caso Raízes do Nordeste:** páginas 4–5 do PDF, operação e equipes por unidade e campanhas segmentadas por idade.
+**Descrição:** Permitir a consulta pública dos produtos disponíveis no cardápio de uma unidade da rede.
 
-As páginas consideram a posição no PDF, incluindo a capa. Dados obrigatórios, unicidade, provisionamento inicial, limites dos perfis, JWT, consulta pública do cardápio e divisão entre implementação e cobertura conceitual são decisões de escopo do projeto.
+**Atores:** Qualquer solicitante, sem necessidade de autenticação.
+
+**Dados:** Identificador do produto, nome, descrição, preço e disponibilidade na unidade consultada.
+
+**Regras:**
+
+- A consulta deve indicar uma unidade existente e não exige autenticação.
+- O cardápio apresenta somente produtos associados à unidade consultada e disponíveis nela, com os respectivos preços dessa unidade.
+- Produtos não associados à unidade e produtos indisponíveis nela são omitidos. A presença ou disponibilidade de um produto em outra unidade não determina sua exibição na unidade consultada.
+- No MVP, produtos, preços e associações iniciais ao cardápio são previamente cadastrados na preparação do ambiente. A gestão desses dados pelo Administrador possui cobertura conceitual no requisito próprio de gestão de produtos e configuração do cardápio.
+
+**Critérios de aceitação:**
+
+1. Sem autenticação, a consulta de uma unidade existente retorna seus produtos disponíveis, com identificador, nome, descrição, preço e disponibilidade.
+2. A consulta de uma unidade inexistente informa que a unidade não foi encontrada.
+3. Uma unidade sem produtos associados ou sem produtos disponíveis retorna um cardápio vazio.
+4. Um produto associado e disponível em uma unidade é exibido no cardápio dela; em outra unidade, se não associado ou indisponível, é omitido.
+5. Quando um mesmo produto está disponível em duas unidades, cada consulta apresenta o preço correspondente à unidade consultada.
+
+**Cobertura:** consulta pública do cardápio por unidade, filtro de disponibilidade e provisionamento dos produtos, preços e associações iniciais terão implementação no MVP. Cadastro e alteração de produtos e configuração do cardápio pelo Administrador permanecem conceituais, conforme o recorte de gestão aprovado.
+
+[Voltar ao topo](#requisitos-funcionais)
+
+## RF05 — Criar pedidos com itens, quantidades, valores e canal de origem
+
+**Descrição:** Permitir a criação de pedidos para uma unidade da rede, registrando itens, quantidades, valores, canal de origem e status inicial.
+
+**Atores:** Cliente autenticado em APP ou WEB; Atendente autenticado em BALCAO e, conceitualmente, TOTEM.
+
+**Dados:** Identificador do pedido, unidade, canal de origem, itens com identificador do produto, quantidade, preço unitário e subtotal, valor total e status. Em APP e WEB, o pedido também possui vínculo com o Cliente autenticado.
+
+**Regras:**
+
+- Cada pedido pertence a uma única unidade existente. Em APP e WEB, o Cliente escolhe a unidade; em BALCAO e, conceitualmente, TOTEM, o Atendente atua somente em sua unidade vinculada.
+- O campo canalPedido é obrigatório e possui os valores APP, TOTEM, BALCAO e WEB, sujeitos à cobertura e às permissões de cada canal.
+- APP e WEB exigem Cliente autenticado e vinculam o pedido a ele. BALCAO exige Atendente autenticado e registra pedido anônimo, sem cadastro de Cliente. TOTEM utiliza credencial de Atendente, com cobertura apenas conceitual.
+- O pedido deve conter ao menos um item. Cada quantidade deve ser inteira e positiva; os produtos devem estar associados e disponíveis na unidade escolhida, conforme suas restrições de estoque.
+- O sistema calcula o preço unitário a partir do cardápio da unidade, o subtotal pela multiplicação do preço pela quantidade e o total pela soma dos subtotais. Valores informados pelo solicitante não substituem esse cálculo.
+- Um pedido criado com sucesso recebe o status AGUARDANDO_PAGAMENTO;
+- A recusa por dados inválidos, falta de disponibilidade ou ausência de permissão não deve gerar pedido parcial.
+
+**Critérios de aceitação:**
+
+1. Um Cliente autenticado em APP ou WEB, ao informar unidade existente e itens válidos e disponíveis, cria um pedido vinculado a si e à unidade escolhida, com o canal informado, os valores calculados e status AGUARDANDO_PAGAMENTO.
+2. Um Atendente autenticado em BALCAO cria um pedido anônimo com itens válidos em sua unidade; a tentativa para outra unidade é recusada.
+3. A criação sem autenticação, com perfil incompatível com o canal ou com canal ausente ou não previsto é recusada, sem registrar pedido.
+4. Unidade inexistente, ausência de itens, quantidade zero, negativa ou não inteira, produto inexistente, não associado ou indisponível na unidade impedem a criação, sem registro parcial.
+5. Os preços registrados correspondem ao cardápio da unidade; os subtotais correspondem ao preço unitário multiplicado pela quantidade e o total à soma dos subtotais, sem aceitar alteração desses valores pelo solicitante.
+6. Na cobertura conceitual de TOTEM, credencial válida de Atendente e itens válidos permitem criar pedido somente na unidade de atuação, com valores calculados e status AGUARDANDO_PAGAMENTO; credencial inválida ou unidade não autorizada impedem a criação.
+
+**Cobertura:** Criação de pedidos em APP, WEB e BALCAO, validações, cálculo dos valores, vínculo por unidade e status inicial terão implementação no backend do MVP. TOTEM possui cobertura apenas conceitual; seu critério não integra os testes executáveis do MVP. Interfaces dos canais não fazem parte deste requisito de backend.
 
 [Voltar ao topo](#requisitos-funcionais)
