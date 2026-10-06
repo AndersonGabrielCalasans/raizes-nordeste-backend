@@ -15,6 +15,7 @@
 - [RF08 — Solicitar pagamento simulado e registrar retorno](#rf08--solicitar-pagamento-simulado-e-registrar-retorno)
 - [RF09 — Acumular e resgatar pontos com consentimento](#rf09--acumular-e-resgatar-pontos-com-consentimento)
 - [RF10 — Aplicar promoções e campanhas](#rf10--aplicar-promoções-e-campanhas)
+- [Fontes](#fontes)
 
 ## Fluxo principal e justificativa
 
@@ -57,6 +58,8 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 **Descrição:** Permitir a autenticação por e-mail e senha e restringir operações protegidas conforme a identidade, o perfil e a unidade de atuação.
 
 **Atores:** Cliente, Atendente, Cozinha e Administrador.
+
+**Dados:** e-mail, senha, token JWT e identidade, perfil e unidade de atuação associados à autenticação.
 
 **Regras:**
 
@@ -102,7 +105,7 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 
 1. Sem autenticação, a consulta da lista retorna as unidades previamente cadastradas com código identificador, nome e endereço.
 2. A consulta por identificador existente retorna os dados da unidade correspondente; por código identificador inexistente, informa que a unidade não foi encontrada.
-3. Na cobertura conceitual, um Administrador autenticado cadastra uma unidade com nome e endereço válidos, o código identificador é auto gerado e único, ou altera seus dados preservando código identificador e vínculos.
+3. Na cobertura conceitual, um Administrador autenticado cadastra uma unidade com nome e endereço válidos e recebe um código identificador gerado automaticamente e único; ao alterar seus dados, preserva código identificador e vínculos.
 4. Na cobertura conceitual, cadastro ou alteração sem permissão ou com nome/endereço ausente ou vazio é recusado, sem criar registro parcial ou modificar os dados anteriores.
 
 **Cobertura:** Consulta pública e provisionamento das unidades iniciais terão implementação no MVP. Cadastro e alteração pelo Administrador possuem cobertura conceitual; seus critérios não integram os testes executáveis do MVP. Esse recorte fornece as unidades necessárias ao fluxo principal sem incluir sua gestão administrativa na implementação.
@@ -150,7 +153,7 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 **Regras:**
 
 - Cada pedido pertence a uma única unidade existente. Em APP e WEB, o Cliente escolhe a unidade; em BALCAO e, conceitualmente, TOTEM, o Atendente atua somente em sua unidade vinculada.
-- O campo canalPedido é obrigatório e possui os valores APP, TOTEM, BALCAO e WEB, sujeitos à cobertura e às permissões de cada canal.
+- O campo canalPedido é obrigatório, de tipo enumerado (ENUM), e possui os valores APP, TOTEM, BALCAO e WEB, sujeitos à cobertura e às permissões de cada canal.
 - APP e WEB exigem Cliente autenticado e vinculam o pedido a ele. BALCAO exige Atendente autenticado e registra pedido anônimo, sem cadastro de Cliente. TOTEM utiliza credencial de Atendente, com cobertura apenas conceitual.
 - O pedido deve conter ao menos um item. Cada quantidade deve ser inteira e positiva; os produtos devem estar associados e disponíveis na unidade escolhida, conforme suas restrições de estoque.
 - O sistema calcula o preço unitário a partir do cardápio da unidade, o subtotal pela multiplicação do preço pela quantidade e o total pela soma dos subtotais. Valores informados pelo solicitante não substituem esse cálculo.
@@ -257,6 +260,7 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 - Recusa registra a tentativa, preserva o status operacional e permite nova tentativa, inclusive para BALCAO em preparo.
 - Falha de comunicação é registrada sem considerar o pagamento aprovado e permite nova tentativa. A repetição não deve duplicar um pagamento aprovado.
 - Retorno repetido da mesma tentativa não duplica pagamento nem atualização de status.
+- O solicitante autorizado recebe o resultado da tentativa, com a identificação do pedido e da tentativa, aprovação, recusa ou falha e situação atual do pagamento e do pedido. O retorno recebido do mock é registrado para acompanhamento do resultado.
 - Cancelamento autorizado de pedido pago registra estorno simulado, respeitando as restrições do RF06, sem movimentação financeira real. Retorno de pagamento não reabre pedido CANCELADO.
 - Operações sem autenticação ou sem permissão são recusadas, sem solicitar pagamento ou alterar o pedido.
 
@@ -270,6 +274,7 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 6. Cancelamento permitido de pedido pago registra estorno simulado. Cancelamento recusado pelo RF06 não altera o pedido nem gera estorno; retorno de pagamento não reabre pedido cancelado.
 7. Solicitante sem autenticação, Cliente tentando pagar pedido de outro Cliente ou Atendente tentando atuar em outra unidade tem a solicitação recusada, sem chamada ao mock ou alteração do pedido.
 8. Na cobertura conceitual de TOTEM, credencial de Atendente permite solicitar pagamento somente de pedido da sua unidade, aplicando os mesmos registros e tratamento de retornos.
+9. Após uma tentativa, o solicitante autorizado recebe seu resultado e a situação atual do pedido e do pagamento, sem obter dados de pedidos fora de sua permissão.
 
 **Cobertura:** integração com mock de API, registro das tentativas e retornos, aprovação, recusa, falha de comunicação, proteção contra duplicação e estorno simulado terão implementação no MVP para APP, WEB e BALCAO. TOTEM permanece conceitual; seu critério não integra os testes executáveis do MVP. Não há pagamento ou estorno financeiro real.
 
