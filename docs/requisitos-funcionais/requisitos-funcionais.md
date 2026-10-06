@@ -15,7 +15,6 @@
 - [RF08 — Solicitar pagamento simulado e registrar retorno](#rf08--solicitar-pagamento-simulado-e-registrar-retorno)
 - [RF09 — Acumular e resgatar pontos com consentimento](#rf09--acumular-e-resgatar-pontos-com-consentimento)
 - [RF10 — Aplicar promoções e campanhas](#rf10--aplicar-promoções-e-campanhas)
-- [Fontes](#fontes)
 
 ## Fluxo principal e justificativa
 

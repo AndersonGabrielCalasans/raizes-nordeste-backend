@@ -4,10 +4,12 @@ Esta seção reúne a documentação técnica do backend da rede Raízes do Nord
 
 ## Análise e requisitos
 
+
+Cada documento possui um sumário para navegação entre suas seções.
+
 | Documento | Conteúdo |
 |---|---|
 | [Requisitos funcionais](requisitos-funcionais/requisitos-funcionais.md) | Funcionalidades, regras, critérios de aceitação e cobertura do MVP, incluindo a justificativa do fluxo principal. |
-
-Cada documento possui um sumário para navegação entre suas seções e referências às fontes acadêmicas utilizadas.
+| [Requisitos não funcionais](requisitos-nao-funcionais/requisitos-nao-funcionais.md) | Regras de qualidade e segurança, critérios de verificação e cobertura do MVP. |
 
 [Voltar à apresentação do projeto](../README.md)
