@@ -7,10 +7,17 @@ O [índice da documentação](docs/README.md) reúne os documentos técnicos por
 
 ## Execução local
 
-Requer JDK 21 e PostgreSQL em execução, com o banco `raizes_nordeste` criado. No PowerShell, acesse a pasta onde o repositório foi clonado:
+Requer JDK 21 e PostgreSQL em execução, com `psql` disponível. O Maven Wrapper obtém o Maven e as dependências na primeira execução. No PowerShell, acesse a pasta onde o repositório foi clonado:
 
 ```powershell
 cd "C:\caminho\para\raizes-nordeste-backend"
+```
+
+No `psql`, conectado como administrador PostgreSQL, crie o usuário e o banco, se ainda não existirem. Substitua a senha pelo valor escolhido para o ambiente local:
+
+```sql
+CREATE ROLE raizes LOGIN PASSWORD 'sua_senha_local';
+CREATE DATABASE raizes_nordeste OWNER raizes;
 ```
 
 Se ainda não houver um `.env`, copie o arquivo de exemplo e ajuste os valores conforme o banco local:
@@ -36,6 +43,16 @@ Na pasta do projeto, inicie a aplicação:
 A aplicação estará disponível em `http://localhost:8080`; a saúde da aplicação e do banco pode ser consultada em `http://localhost:8080/q/health`. Para encerrar, pressione `Ctrl+C` no terminal.
 
 Ao iniciar, o Flyway aplica as migrations em `src/main/resources/db/migration` em um banco vazio. O arquivo `.env` não é versionado.
+
+Após a primeira inicialização, carregue dados fictícios em outro terminal, na pasta do projeto. Informe um CPF fictício válido e uma senha local com pelo menos oito caracteres, sem espaços:
+
+```powershell
+$cpfAdmin = Read-Host "CPF fictício do administrador (11 dígitos)"
+$senhaAdmin = Read-Host "Senha local do administrador"
+psql -h localhost -p 5432 -U raizes -d raizes_nordeste -v ON_ERROR_STOP=1 -v "admin_cpf=$cpfAdmin" -v "admin_senha=$senhaAdmin" -f migrations/dados-iniciais.sql
+```
+
+O script usa a extensão PostgreSQL `pgcrypto` e pode ser repetido sem sobrescrever os registros existentes. A conta inicial usa `admin@raizes.local`, com senha protegida por bcrypt, custo 12 e salt individual; o login será implementado na etapa de autenticação. No Windows, se `psql` não estiver no PATH, use o caminho do executável, por exemplo `& "C:\Program Files\PostgreSQL\17\bin\psql.exe"`.
 
 ## Referências
 
