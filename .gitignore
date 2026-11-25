@@ -29,3 +29,4 @@ replay_pid*
 # Build e configuração local
 target/
 .env
+keys/
