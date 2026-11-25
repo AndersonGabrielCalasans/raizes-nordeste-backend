@@ -73,16 +73,21 @@ Requisitos relacionados: RF05–RF08 e RNF04, RNF07.
 
 A visão de domínio abaixo orienta o DER e o diagrama de classes.
 
-| Conceito | Relações e responsabilidade | Base |
+| Entidade | Relações e responsabilidade | Base |
 |---|---|---|
-| Usuário e perfil | Um perfil por cadastro; Atendente/Cozinha vinculados a uma unidade; Cliente associado aos próprios pedidos APP/WEB. | RF01–RF02 |
-| Unidade e cardápio | Unidade reúne produtos associados, com preço e disponibilidade locais. | RF03–RF04 |
-| Produto e estoque | Saldo por produto e unidade; movimentações manuais ou vinculadas à criação/cancelamento de pedidos. | RF07 |
-| Pedido e item | Pedido pertence a uma unidade, registra canal e status e contém um ou mais itens com quantidade e valores. BALCAO é anônimo. | RF05–RF06 |
-| Tentativa de pagamento | Vinculada ao pedido; registra valor, retorno e falha, com controle de efeitos repetidos e estorno simulado quando aplicável. | RF08 |
-| Registro de auditoria | Registra operação, recurso, resultado, data/hora e responsável identificável, sem credenciais ou dados pessoais completos. | RNF04 |
+| Usuário | Cadastro, credenciais e um perfil; Atendente/Cozinha vinculados a uma unidade; Cliente associado aos próprios pedidos APP/WEB. | RF01–RF02 |
+| Unidade | Loja à qual pertencem o cardápio, o estoque e os pedidos. | RF03–RF07 |
+| Produto | Identificação e descrição do produto vendido. | RF04 |
+| ProdutoUnidade | Associação única entre produto e unidade, com preço local, disponibilidade e saldo de estoque. | RF04, RF07 |
+| MovimentaçãoEstoque | Entrada ou saída de ProdutoUnidade, com quantidade e referência ao pedido nas movimentações automáticas. | RF07 |
+| Pedido | Unidade, canal, status operacional, situação do pagamento e total; Cliente obrigatório em APP/WEB e ausente em BALCAO. Registra separadamente o usuário criador. | RF05–RF06, RF08 |
+| ItemPedido | Pertence a um pedido e identifica o produto da unidade, quantidade e preço praticado na compra. Cada pedido contém pelo menos um item. | RF05 |
+| TentativaPagamento | Pertence a um pedido; registra valor, resultado ou falha e eventual estorno simulado. Permite várias tentativas sem duplicar pagamento aprovado. | RF08 |
+| EventoAuditoria | Registra operação, recurso, resultado, data/hora e responsável quando identificável, sem credenciais ou dados pessoais completos. | RNF04 |
 
-O DER explicita PK/FK, cardinalidades e restrições e permanecer compatível com PostgreSQL e as migrations Flyway.
+Perfil é representado por enum, sem tabela de permissões. O cardápio é uma consulta dos produtos disponíveis da unidade, sem entidade própria. A autorização considera perfil, unidade, propriedade, status e pagamento.
+
+Funcionalidades conceituais não geram tabelas de implementação no DER do MVP. O [DER do MVP](modelagem/modelagem.md) detalha PK/FK, cardinalidades e restrições compatíveis com PostgreSQL e as migrations Flyway.
 
 [Voltar ao topo](#documentação)
 
