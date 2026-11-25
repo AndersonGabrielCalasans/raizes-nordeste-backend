@@ -9,6 +9,7 @@ Esta seção reúne a documentação técnica do backend da rede Raízes do Nord
 - [Permissões principais](#permissões-principais)
 - [Fluxo crítico](#fluxo-crítico)
 - [Modelagem e diagramas](#modelagem-e-diagramas)
+- [Arquitetura e contratos](#arquitetura-e-contratos)
 
 ## Análise e requisitos
 
@@ -88,6 +89,15 @@ A visão de domínio abaixo orienta os [diagramas da M01-004](modelagem/modelage
 Perfil é representado por enum, sem tabela de permissões. O cardápio é uma consulta dos produtos disponíveis da unidade, sem entidade própria. A autorização considera perfil, unidade, propriedade, status e pagamento.
 
 Funcionalidades conceituais não geram tabelas de implementação no DER do MVP. Casos de uso, feature crítica, DER, classes e sequência do fluxo estão organizados na documentação de modelagem. O DER detalha PK/FK, cardinalidades e restrições compatíveis com PostgreSQL e as migrations Flyway.
+
+[Voltar ao topo](#documentação)
+
+## Arquitetura e contratos
+
+| Documento | Conteúdo |
+|---|---|
+| [Arquitetura do backend](arquitetura/arquitetura.md) | Camadas, dependências e responsabilidades da API, aplicação, domínio e infraestrutura. |
+| [Contratos da API](contratos/contratos.md) | Rotas, permissões, parâmetros, exemplos, respostas, códigos HTTP e padrão de erro do MVP. |
 
 [Voltar ao topo](#documentação)
 
