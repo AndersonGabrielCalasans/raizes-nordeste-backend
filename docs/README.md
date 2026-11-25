@@ -8,7 +8,7 @@ Esta seção reúne a documentação técnica do backend da rede Raízes do Nord
 - [MVP](#mvp)
 - [Permissões principais](#permissões-principais)
 - [Fluxo crítico](#fluxo-crítico)
-- [Modelagem principal](#modelagem-principal)
+- [Modelagem e diagramas](#modelagem-e-diagramas)
 
 ## Análise e requisitos
 
@@ -69,9 +69,9 @@ Requisitos relacionados: RF05–RF08 e RNF04, RNF07.
 
 [Voltar ao topo](#documentação)
 
-## Modelagem principal
+## Modelagem e diagramas
 
-A visão de domínio abaixo orienta o DER e o diagrama de classes.
+A visão de domínio abaixo orienta os [diagramas da M01-004](modelagem/modelagem.md).
 
 | Entidade | Relações e responsabilidade | Base |
 |---|---|---|
@@ -87,7 +87,7 @@ A visão de domínio abaixo orienta o DER e o diagrama de classes.
 
 Perfil é representado por enum, sem tabela de permissões. O cardápio é uma consulta dos produtos disponíveis da unidade, sem entidade própria. A autorização considera perfil, unidade, propriedade, status e pagamento.
 
-Funcionalidades conceituais não geram tabelas de implementação no DER do MVP. O [DER do MVP](modelagem/modelagem.md) detalha PK/FK, cardinalidades e restrições compatíveis com PostgreSQL e as migrations Flyway.
+Funcionalidades conceituais não geram tabelas de implementação no DER do MVP. Casos de uso, feature crítica, DER, classes e sequência do fluxo estão organizados na documentação de modelagem. O DER detalha PK/FK, cardinalidades e restrições compatíveis com PostgreSQL e as migrations Flyway.
 
 [Voltar ao topo](#documentação)
 
