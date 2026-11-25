@@ -18,78 +18,78 @@ erDiagram
     USUARIO o|--o{ EVENTO_AUDITORIA : responsavel
 
     USUARIO {
-        id PK
-        nome
-        cpf UK
-        data_nascimento
-        email UK
-        senha_hash
-        perfil
-        unidade_id FK
+        uuid id PK
+        string nome
+        string cpf UK
+        date data_nascimento
+        string email UK
+        string senha_hash
+        string perfil
+        uuid unidade_id FK
     }
     UNIDADE {
-        id PK
-        nome
-        endereco
+        uuid id PK
+        string nome
+        string endereco
     }
     PRODUTO {
-        id PK
-        nome
-        descricao
+        uuid id PK
+        string nome
+        string descricao
     }
     PRODUTO_UNIDADE {
-        id PK
-        unidade_id FK
-        produto_id FK
-        preco
-        disponivel
-        saldo_estoque
+        uuid id PK
+        uuid unidade_id FK
+        uuid produto_id FK
+        decimal preco
+        boolean disponivel
+        integer saldo_estoque
     }
     MOVIMENTACAO_ESTOQUE {
-        id PK
-        produto_unidade_id FK
-        pedido_id FK
-        tipo
-        quantidade
-        origem
-        criado_em
+        uuid id PK
+        uuid produto_unidade_id FK
+        uuid pedido_id FK
+        string tipo
+        integer quantidade
+        string origem
+        datetime criado_em
     }
     PEDIDO {
-        id PK
-        unidade_id FK
-        cliente_id FK
-        criador_id FK
-        canal_pedido
-        status
-        situacao_pagamento
-        valor_total
-        criado_em
+        uuid id PK
+        uuid unidade_id FK
+        uuid cliente_id FK
+        uuid criador_id FK
+        string canal_pedido
+        string status
+        string situacao_pagamento
+        decimal valor_total
+        datetime criado_em
     }
     ITEM_PEDIDO {
-        id PK
-        pedido_id FK
-        produto_unidade_id FK
-        quantidade
-        preco_unitario
-        subtotal
+        uuid id PK
+        uuid pedido_id FK
+        uuid produto_unidade_id FK
+        integer quantidade
+        decimal preco_unitario
+        decimal subtotal
     }
     TENTATIVA_PAGAMENTO {
-        id PK
-        pedido_id FK
-        valor_solicitado
-        resultado
-        falha
-        estorno_simulado
-        criado_em
+        uuid id PK
+        uuid pedido_id FK
+        decimal valor_solicitado
+        string resultado
+        string falha
+        boolean estorno_simulado
+        datetime criado_em
     }
     EVENTO_AUDITORIA {
-        id PK
-        responsavel_id FK
-        operacao
-        recurso
-        recurso_id
-        resultado
-        criado_em
+        uuid id PK
+        uuid responsavel_id FK
+        string operacao
+        string recurso
+        uuid recurso_id
+        string resultado
+        datetime criado_em
     }
 ```
 
