@@ -34,6 +34,14 @@ $env:DB_USERNAME = "raizes"
 $env:DB_PASSWORD = "altere_esta_senha"
 ```
 
+Para habilitar a assinatura dos tokens, use PowerShell 7 para gerar as chaves locais uma única vez:
+
+```powershell
+pwsh -File .\scripts\gerar-chaves.ps1
+```
+
+No `.env`, configure `JWT_PRIVATE_KEY_PATH=keys/privateKey.pem` e `JWT_PUBLIC_KEY_PATH=keys/publicKey.pem`. As chaves são locais e não são versionadas.
+
 Na pasta do projeto, inicie a aplicação:
 
 ```powershell
@@ -58,6 +66,7 @@ O script usa a extensão PostgreSQL `pgcrypto` e pode ser repetido sem sobrescre
 
 - [Quarkus — Using Flyway](https://quarkus.io/guides/flyway)
 - [Quarkus — Getting Started](https://quarkus.io/guides/getting-started)
+- [Quarkus — Using JWT RBAC](https://quarkus.io/guides/security-jwt)
 
 ## Acompanhamento
 
