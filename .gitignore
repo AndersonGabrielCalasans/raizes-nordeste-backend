@@ -25,3 +25,7 @@ replay_pid*
 
 #IDE archives
 .idea*
+
+# Build e configuração local
+target/
+.env
