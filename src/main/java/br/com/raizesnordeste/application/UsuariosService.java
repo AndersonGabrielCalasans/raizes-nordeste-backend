@@ -56,7 +56,7 @@ public class UsuariosService {
         String cpf = dados.cpf().replaceAll("[.\\-]", "");
         String email = dados.email().trim().toLowerCase(Locale.ROOT);
         if (!Cpf.valido(cpf) || email.length() > 254 || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
-                || dados.senha().length() < 8 || dados.senha().matches(".*\\s.*")
+                || dados.senha().length() < 8 || dados.senha().codePoints().anyMatch(Character::isWhitespace)
                 || dados.senha().getBytes(StandardCharsets.UTF_8).length > 72) {
             throw erro(400, "DADOS_INVALIDOS", "CPF, e-mail ou senha inválidos.");
         }

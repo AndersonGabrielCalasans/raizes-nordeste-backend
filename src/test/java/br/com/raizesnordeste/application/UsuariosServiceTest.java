@@ -40,7 +40,7 @@ class UsuariosServiceTest {
 
     @Test
     void recusaSenhaCurtaOuComEspacos() {
-        for (String senha : new String[] { "curta", "senha 123" }) {
+        for (String senha : new String[] { "curta", "senha 123", "senha\n123" }) {
             var cadastro = new UsuariosService.Cadastro("Pessoa", "52998224725", LocalDate.of(2000, 1, 1),
                     "pessoa@example.com", senha);
             assertEquals(400,
