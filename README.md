@@ -68,6 +68,8 @@ O script usa a extensão PostgreSQL `pgcrypto` e pode ser repetido sem sobrescre
 
 Com o banco local preparado, migrations e seed aplicados, inicie a API e importe a [coleção Insomnia](insomnia/raizes-insomnia.json). O [guia de testes](docs/testes/testes.md) explica o ambiente, o token, a ordem das requisições, a simulação de pagamento e a conferência da auditoria. Registre os resultados em [insomnia/resultados.md](insomnia/resultados.md). Use dados fictícios e um banco de testes: os cenários criam pedidos e movimentam estoque.
 
+O [plano de desempenho e recuperação](docs/testes/desempenho-recuperacao.md) documenta a carga local, a preparação isolada e os resultados de RNF05 e RNF06.
+
 Para executar os testes automatizados do projeto:
 
 ```powershell
