@@ -1,0 +1,25 @@
+{
+  "pagamento": {
+    "http": 200,
+    "resultado": "APROVADO",
+    "status_pedido": "RECEBIDO",
+    "tempo_ms": 10.03
+  },
+  "pedido_id": "299cf6ad-d299-4761-b707-614a6c40c53b",
+  "api_reiniciada": {
+    "http": 200,
+    "status_pedido": "RECEBIDO",
+    "pagamento": "APROVADO"
+  },
+  "banco_indisponivel": {
+    "http": 500,
+    "erro_transporte": false,
+    "tempo_ms": 51.61
+  },
+  "banco_recuperado": {
+    "consulta_http": 200,
+    "status_pedido": "RECEBIDO",
+    "pagamento": "APROVADO",
+    "nova_criacao_http": 201
+  }
+}

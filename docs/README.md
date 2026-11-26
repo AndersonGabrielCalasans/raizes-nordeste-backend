@@ -107,6 +107,8 @@ Funcionalidades conceituais não geram tabelas de implementação no DER do MVP.
 
 O [guia de testes do MVP](testes/testes.md) apresenta os cenários, a coleção do Insomnia, a execução e a verificação da auditoria no PostgreSQL.
 
+O [plano de desempenho e recuperação](testes/desempenho-recuperacao.md) apresenta o cenário local, sua reprodução e os resultados dos RNF05 e RNF06.
+
 [Voltar ao topo](#documentação)
 
 [Voltar à apresentação do projeto](../README.md)
