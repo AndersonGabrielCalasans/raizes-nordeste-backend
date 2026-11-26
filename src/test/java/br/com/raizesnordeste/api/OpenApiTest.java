@@ -60,7 +60,10 @@ class OpenApiTest {
         assertEquals(200, response.statusCode());
         JsonNode documento = new ObjectMapper().readTree(response.body());
         JsonNode paths = documento.path("paths");
-        assertEquals(9, paths.size());
+        assertEquals(11, paths.size());
+        assertTrue(paths.path("/pedidos").path("post").has("security"));
+        assertTrue(paths.path("/pedidos").path("get").has("security"));
+        assertTrue(paths.path("/pedidos/{id}").path("get").has("security"));
         assertTrue(paths.path("/unidades/{id}").has("get"));
         assertTrue(paths.path("/unidades").has("get"));
         assertTrue(paths.path("/unidades/{id}/cardapio").has("get"));
@@ -94,7 +97,8 @@ class OpenApiTest {
         }
         assertTrue(documento.path("components").path("securitySchemes").size() > 0);
         for (var rota : new String[][] { { "/unidades", "get", "200" }, { "/unidades/{id}", "get", "200" }, { "/unidades/{id}/cardapio", "get", "200" },
-                { "/estoque", "get", "200" }, { "/estoque/movimentacoes", "post", "201" } }) {
+                { "/estoque", "get", "200" }, { "/estoque/movimentacoes", "post", "201" },
+                { "/pedidos", "get", "200" }, { "/pedidos", "post", "201" }, { "/pedidos/{id}", "get", "200" } }) {
             var operacao = paths.path(rota[0]).path(rota[1]);
             assertFalse(operacao.path("summary").asText().isBlank(), rota[0]);
             var json = operacao.path("responses").path(rota[2]).path("content").path("application/json");
