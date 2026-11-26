@@ -131,4 +131,12 @@ Para RNF06, após reiniciar a API, a consulta do pedido pago retornou HTTP 200. 
 
 A observação de erro HTTP 500 demonstra que a consulta falhou nesse teste; não comprova tratamento padronizado de todas as falhas de banco. A instância isolada foi encerrada ao final e o banco principal permaneceu em execução.
 
+## Reexecução com auditoria de consultas
+
+Em 26/11/2026, após a inclusão de auditoria nas consultas de pedidos, o cenário foi repetido na mesma configuração local. Foram 3.000 requisições em 300 segundos: 1.000 consultas de cardápio, 1.000 listagens de pedidos e 1.000 criações. Todas responderam em até dois segundos; não houve falhas, respostas 5xx ou erros de transporte. A mediana foi 16,64 ms, o p95 36,46 ms e o máximo 90,11 ms. O [resultado estruturado](resultado-carga-rnf05-auditoria.json) registra a execução.
+
+Antes da carga havia 1.005 pedidos, itens e movimentos, com saldo 3.995. A conferência posterior incluiu um pedido adicional criado para o teste de recuperação: foram observados 2.006 pedidos, itens e movimentos e saldo 2.994. A diferença corresponde às 1.000 criações da carga e à criação adicional. Não foram encontrados pedidos sem item, saídas duplicadas ou pedidos sem a saída esperada. As 1.000 listagens geraram 1.000 eventos `CONSULTAR_PEDIDOS`; uma consulta individual gerou `CONSULTAR_PEDIDO`.
+
+Com o PostgreSQL isolado interrompido, a consulta do pedido retornou HTTP 500 com `codigo` igual a `ERRO_INTERNO` e sem detalhes do banco. Após o restabelecimento do banco, a primeira consulta ainda retornou 500; após reiniciar também a API, a consulta retornou 200 e uma nova criação retornou 201. A recuperação observada, portanto, exigiu reinício da API nesse ensaio. A API e o cluster isolados foram encerrados ao final.
+
 [Voltar ao topo](#desempenho-e-recuperação)

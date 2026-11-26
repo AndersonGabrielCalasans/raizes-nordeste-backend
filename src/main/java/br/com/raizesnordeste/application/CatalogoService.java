@@ -34,7 +34,7 @@ public class CatalogoService {
 
     private void validarPagina(int pagina, int limite) {
         if (pagina < 1 || limite < 1 || limite > 100 || ((long) pagina - 1) * limite > Integer.MAX_VALUE)
-            throw UsuariosService.erro(400, "PAGINACAO_INVALIDA", "Informe página e limite válidos (limite máximo: 100).");
+            throw UsuariosService.erro(400, "PAGINACAO_INVALIDA", "Página ou limite inválido (limite máximo: 100).");
     }
 
     public RepositorioCatalogo.Pagina<RepositorioCatalogo.Unidade> unidades(int pagina, int limite) {
@@ -69,7 +69,7 @@ public class CatalogoService {
     public RepositorioCatalogo.Movimento movimentar(UUID responsavel, Movimentacao dados) {
         if (dados == null || dados.produtoUnidadeId() == null || dados.quantidade() == null || dados.quantidade() <= 0
                 || !("ENTRADA".equals(dados.tipo()) || "SAIDA".equals(dados.tipo())))
-            throw UsuariosService.erro(400, "DADOS_INVALIDOS", "Informe produto, tipo e quantidade positiva.");
+            throw UsuariosService.erro(400, "DADOS_INVALIDOS", "Produto, tipo ou quantidade inválidos; a quantidade deve ser positiva.");
         int anterior = repositorio.bloquearSaldo(dados.produtoUnidadeId())
                 .orElseThrow(() -> UsuariosService.erro(404, "PRODUTO_UNIDADE_NAO_ENCONTRADO", "Produto da unidade não encontrado."));
         long novo = (long) anterior + ("ENTRADA".equals(dados.tipo()) ? dados.quantidade() : -(long) dados.quantidade());

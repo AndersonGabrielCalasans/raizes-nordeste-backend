@@ -42,7 +42,7 @@ flowchart LR
     gateway --> pagar
 ```
 
-Cliente, Atendente, Cozinha, Gerente/Administrador e Gateway estão representados conforme o roteiro. As ações de fidelidade, campanhas e TOTEM têm cobertura conceitual. APP, WEB e BALCAO compõem o MVP.
+Cliente, Atendente, Cozinha, Gerente/Administrador e Gateway estão representados conforme o roteiro. O Gateway externo é uma visão conceitual: a implementação atual usa um adaptador mock local, sem chamada HTTP externa. As ações de fidelidade, campanhas e TOTEM também têm cobertura conceitual. APP, WEB e BALCAO compõem o MVP.
 
 ## Feature crítica — Pedido, pagamento mock e status
 

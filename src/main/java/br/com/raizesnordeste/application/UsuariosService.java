@@ -59,7 +59,7 @@ public class UsuariosService {
                 || dados.cpf() == null || dados.dataNascimento() == null
                 || dados.dataNascimento().isAfter(LocalDate.now())
                 || dados.email() == null || dados.senha() == null) {
-            throw erro(400, "DADOS_INVALIDOS", "Preencha os dados obrigatórios corretamente.");
+            throw erro(400, "DADOS_INVALIDOS", "Dados obrigatórios ausentes ou inválidos.");
         }
         String cpf = dados.cpf().replaceAll("[.\\-]", "");
         String email = dados.email().trim().toLowerCase(Locale.ROOT);
@@ -69,7 +69,7 @@ public class UsuariosService {
             throw erro(400, "DADOS_INVALIDOS", "CPF, e-mail ou senha inválidos.");
         }
         if (!perfil.equals("CLIENTE") && unidadeId == null) {
-            throw erro(400, "DADOS_INVALIDOS", "Informe a unidade de atuação.");
+            throw erro(400, "DADOS_INVALIDOS", "Unidade de atuação obrigatória.");
         }
         if (unidadeId != null && !repositorio.unidadeExiste(unidadeId)) {
             throw erro(404, "UNIDADE_NAO_ENCONTRADA", "Unidade não encontrada.");
@@ -92,7 +92,7 @@ public class UsuariosService {
     public Autenticacao autenticar(Login dados) {
         if (dados == null || dados.email() == null || dados.email().isBlank() || dados.senha() == null
                 || dados.senha().isEmpty()) {
-            throw erro(400, "DADOS_INVALIDOS", "Informe e-mail e senha.");
+            throw erro(400, "DADOS_INVALIDOS", "E-mail e senha são obrigatórios.");
         }
         var usuario = repositorio.buscarPorEmail(dados.email().trim().toLowerCase(Locale.ROOT));
         if (usuario.isEmpty() || !credenciais.conferirSenha(dados.senha(), usuario.get().senhaHash())) {
@@ -106,7 +106,7 @@ public class UsuariosService {
     @Transactional
     public Usuario alterarUnidade(UUID id, Unidade dados) {
         if (dados == null || dados.unidadeId() == null) {
-            throw erro(400, "DADOS_INVALIDOS", "Informe a unidade.");
+            throw erro(400, "DADOS_INVALIDOS", "Unidade obrigatória.");
         }
         if (!repositorio.unidadeExiste(dados.unidadeId())) {
             throw erro(404, "UNIDADE_NAO_ENCONTRADA", "Unidade não encontrada.");

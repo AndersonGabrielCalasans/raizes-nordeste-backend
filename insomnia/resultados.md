@@ -1,6 +1,6 @@
 # Resultados dos testes do MVP
 
-Registro da execução manual da [coleção do Insomnia](raizes-insomnia.json), com resultados conferidos nas evidências. Para preparação, ordem e entradas completas, consulte o [guia de testes](../docs/testes/testes.md).
+Registro da execução manual da [coleção do Insomnia](raizes-insomnia.json), com resultados conferidos nas evidências. A preparação, a ordem e as entradas completas estão no [guia de testes](../docs/testes/testes.md).
 
 - Data da execução: 26/11/2026
 - Ambiente: API local, PostgreSQL e dados iniciais conforme o README
@@ -30,4 +30,4 @@ As respostas dos cenários abaixo corresponderam aos resultados esperados. O cas
 | T18 — Repetir cancelamento | 409; `CANCELAMENTO_INVALIDO` | 409; `CANCELAMENTO_INVALIDO` | Aprovado | [Ver](evidencias/T18-repetir-cancelamento.png) |
 | Auditoria do pedido de T05 | Eventos de criação, pagamento e cancelamento no PostgreSQL | Três eventos registrados | Aprovado | [Ver](evidencias/auditoria-pedido.md) |
 
-As imagens complementares podem ser guardadas em [evidencias](evidencias/README.md). Não registre senhas, tokens ou dados pessoais reais neste arquivo ou nas imagens.
+As imagens complementares estão em [evidencias](evidencias/README.md). Senhas, tokens válidos e dados pessoais reais não devem ser registrados neste arquivo ou nas imagens.

@@ -1,0 +1,28 @@
+{
+  "usuarios": 10,
+  "duracao_configurada_s": 300,
+  "intervalo_por_usuario_s": 1.0,
+  "total_requisicoes": 3000,
+  "por_operacao": {
+    "cardapio": 1000,
+    "consultar_pedidos": 1000,
+    "criar_pedido": 1000
+  },
+  "por_status": {
+    "200": 2000,
+    "201": 1000
+  },
+  "falhas_de_expectativa": 0,
+  "erros_internos_5xx": 0,
+  "erros_transporte": 0,
+  "tempo_min_ms": 2.2,
+  "tempo_mediano_ms": 16.64,
+  "tempo_p95_ms": 36.46,
+  "tempo_max_ms": 90.11,
+  "respostas_ate_2s": 3000,
+  "percentual_ate_2s_sobre_requisicoes": 100.0,
+  "pedidos_criados": 1000,
+  "duracao_real_s": 300.01,
+  "inicio_utc": "2026-11-26T14:31:51.742872+00:00",
+  "fim_utc": "2026-11-26T14:36:51.753865+00:00"
+}

@@ -31,7 +31,7 @@ def main():
         status_login, resposta, _ = requisitar(args.url.rstrip('/'), 'POST', '/auth/login',
                                               corpo={'email': email, 'senha': senha})
         if status_login != 200 or not resposta or not resposta.get('token'):
-            raise SystemExit(f'Cliente {numero} não pôde autenticar; verifique conflitos de cadastro.')
+            raise SystemExit(f'Cliente {numero} não pôde autenticar; é necessário verificar conflitos de cadastro.')
         emails.append(email)
     print('Clientes fictícios prontos. RAIZES_TESTE_EMAILS:')
     print(','.join(emails))

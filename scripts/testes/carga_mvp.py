@@ -136,7 +136,7 @@ def main():
     for email in emails:
         status, resposta, _ = requisitar(args.url, 'POST', '/auth/login', corpo={'email': email, 'senha': senha})
         if status != 200 or not resposta or not resposta.get('token'):
-            raise SystemExit('Login de teste não foi concluído; verifique a API e as credenciais.')
+            raise SystemExit('Login de teste não foi concluído; é necessário verificar a API e as credenciais.')
         tokens.append(resposta['token'])
     inicio = datetime.now(timezone.utc).isoformat()
     resultado = medir(args.url.rstrip('/'), tokens, args.duracao, args.intervalo)

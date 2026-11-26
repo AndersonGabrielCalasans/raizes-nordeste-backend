@@ -1,4 +1,4 @@
--- Dados de demonstração local. Informe admin_cpf e admin_senha via psql.
+-- Dados de demonstração local. admin_cpf e admin_senha são informados via psql.
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
