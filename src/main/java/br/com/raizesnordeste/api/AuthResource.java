@@ -36,7 +36,7 @@ public class AuthResource {
     @RequestBody(required = true, description = "Dados obrigatórios do cliente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuariosService.Cadastro.class), examples = @ExampleObject(name = "Cliente fictício", value = "{\"nome\":\"Cliente Exemplo\",\"cpf\":\"52998224725\",\"dataNascimento\":\"1990-03-10\",\"email\":\"cliente@example.com\",\"senha\":\"Senha123\"}")))
     @APIResponse(responseCode = "201", description = "Cliente cadastrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuariosService.Usuario.class), examples = @ExampleObject(name = "Cliente cadastrado", value = "{\"id\":\"40000000-0000-0000-0000-000000000002\",\"nome\":\"Cliente Exemplo\",\"perfil\":\"CLIENTE\",\"unidadeId\":null}")))
     @APIResponse(responseCode = "400", description = "Dados inválidos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErro.class), examples = @ExampleObject(name = "Dados inválidos", value = "{\"codigo\":\"DADOS_INVALIDOS\",\"mensagem\":\"CPF, e-mail ou senha inválidos.\",\"detalhes\":[]}")))
-    @APIResponse(responseCode = "409", description = "CPF ou e-mail já cadastrado", content = @Content(schema = @Schema(implementation = ApiErro.class)))
+    @APIResponse(responseCode = "409", description = "CPF ou e-mail já cadastrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErro.class), examples = @ExampleObject(name = "Exemplo", value = "{\"codigo\":\"CADASTRO_DUPLICADO\",\"mensagem\":\"CPF ou e-mail já cadastrado.\",\"detalhes\":[]}")))
     public Response cadastro(UsuariosService.Cadastro dados) {
         var usuario = usuarios.cadastrar(dados, "CLIENTE", null);
         auditoria.registrar(new Auditoria.Evento(usuario.id(), "CADASTRAR_CLIENTE", "USUARIO", usuario.id(), "SUCESSO"));
@@ -49,8 +49,8 @@ public class AuthResource {
     @Operation(summary = "Autenticar usuário", description = "Retorna um JWT com validade de 60 minutos.")
     @RequestBody(required = true, description = "E-mail e senha de usuário cadastrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuariosService.Login.class), examples = @ExampleObject(name = "Login", value = "{\"email\":\"cliente@example.com\",\"senha\":\"Senha123\"}")))
     @APIResponse(responseCode = "200", description = "Autenticado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuariosService.Token.class), examples = @ExampleObject(name = "Token", value = "{\"token\":\"<jwt>\",\"expiraEm\":\"2030-01-01T13:00:00Z\"}")))
-    @APIResponse(responseCode = "400", description = "Dados ausentes", content = @Content(schema = @Schema(implementation = ApiErro.class)))
-    @APIResponse(responseCode = "401", description = "Credenciais inválidas", content = @Content(schema = @Schema(implementation = ApiErro.class)))
+    @APIResponse(responseCode = "400", description = "Dados ausentes", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErro.class), examples = @ExampleObject(name = "Exemplo", value = "{\"codigo\":\"DADOS_INVALIDOS\",\"mensagem\":\"E-mail e senha são obrigatórios.\",\"detalhes\":[]}")))
+    @APIResponse(responseCode = "401", description = "Credenciais inválidas", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErro.class), examples = @ExampleObject(name = "Exemplo", value = "{\"codigo\":\"CREDENCIAIS_INVALIDAS\",\"mensagem\":\"E-mail ou senha inválidos.\",\"detalhes\":[]}")))
     public UsuariosService.Token login(UsuariosService.Login dados) {
         try {
             var autenticacao = usuarios.autenticar(dados);

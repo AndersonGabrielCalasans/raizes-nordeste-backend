@@ -115,6 +115,23 @@ class OpenApiTest {
             assertTrue(erro.has("schema"), rota);
             assertTrue(erro.path("examples").size() > 0 || erro.has("example"), rota);
         }
+        for (var rota : new String[][] {
+                { "/auth/login", "post", "400" }, { "/auth/login", "post", "401" },
+                { "/auth/cadastro", "post", "409" }, { "/unidades", "get", "400" },
+                { "/unidades/{id}", "get", "404" }, { "/unidades/{id}/cardapio", "get", "400" },
+                { "/unidades/{id}/cardapio", "get", "404" }, { "/usuarios", "post", "401" },
+                { "/usuarios", "post", "403" }, { "/usuarios/{id}/unidade", "patch", "401" },
+                { "/usuarios/{id}/unidade", "patch", "403" }, { "/estoque", "get", "401" },
+                { "/estoque/movimentacoes", "post", "401" }, { "/pedidos", "get", "401" },
+                { "/pedidos", "post", "401" }, { "/pedidos/{id}", "get", "401" },
+                { "/pedidos/{id}/pagamentos", "post", "401" },
+                { "/pedidos/{id}/status", "patch", "401" },
+                { "/pedidos/{id}/cancelamento", "post", "401" } }) {
+            var erro = paths.path(rota[0]).path(rota[1]).path("responses").path(rota[2])
+                    .path("content").path("application/json");
+            assertTrue(erro.has("schema"), rota[0] + " " + rota[2]);
+            assertTrue(erro.path("examples").size() > 0 || erro.has("example"), rota[0] + " " + rota[2]);
+        }
         JsonNode schemas = documento.path("components").path("schemas");
         assertTrue(schemas.path("Cadastro").path("required").toString().contains("cpf"));
         assertTrue(schemas.path("CadastroOperacional").path("required").toString().contains("unidadeId"));
