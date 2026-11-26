@@ -25,7 +25,11 @@ public class AuditoriaSeguranca {
 
     private void registrar(SecurityEvent evento, String operacao) {
         var contexto = (RoutingContext) evento.getEventProperties().get(RoutingContext.class.getName());
-        if (contexto == null || !contexto.request().path().startsWith("/usuarios")) return;
+        if (contexto == null) return;
+        String caminho = contexto.request().path();
+        String recurso = caminho.equals("/usuarios") || caminho.startsWith("/usuarios/") ? "USUARIO"
+                : caminho.equals("/estoque") || caminho.startsWith("/estoque/") ? "ESTOQUE" : null;
+        if (recurso == null) return;
         UUID responsavel = null;
         if (evento.getSecurityIdentity() != null && !evento.getSecurityIdentity().isAnonymous()) {
             try {
@@ -34,6 +38,6 @@ public class AuditoriaSeguranca {
                 // Uma identidade não reconhecida não é atribuída a um usuário.
             }
         }
-        auditoria.registrar(new Auditoria.Evento(responsavel, operacao, "USUARIO", null, "RECUSADO"));
+        auditoria.registrar(new Auditoria.Evento(responsavel, operacao, recurso, null, "RECUSADO"));
     }
 }

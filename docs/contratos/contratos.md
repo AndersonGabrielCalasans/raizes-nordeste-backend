@@ -80,6 +80,7 @@ PATCH /usuarios/usuario-2/unidade
 | Método e rota | Permissão | Parâmetros | Sucesso | Erros |
 |---|---|---|---|---|
 | `GET /unidades` | Pública | `page`, `limit` | `200` | `400` |
+| `GET /unidades/{id}` | Pública | `id` | `200` | `404` |
 | `GET /unidades/{id}/cardapio` | Pública | `id`, `page`, `limit` | `200` | `400`, `404` |
 
 ```json

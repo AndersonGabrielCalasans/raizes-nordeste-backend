@@ -60,7 +60,12 @@ class OpenApiTest {
         assertEquals(200, response.statusCode());
         JsonNode documento = new ObjectMapper().readTree(response.body());
         JsonNode paths = documento.path("paths");
-        assertEquals(4, paths.size());
+        assertEquals(9, paths.size());
+        assertTrue(paths.path("/unidades/{id}").has("get"));
+        assertTrue(paths.path("/unidades").has("get"));
+        assertTrue(paths.path("/unidades/{id}/cardapio").has("get"));
+        assertTrue(paths.path("/estoque").path("get").has("security"));
+        assertTrue(paths.path("/estoque/movimentacoes").path("post").has("security"));
         assertTrue(paths.path("/auth/cadastro").has("post"));
         assertTrue(paths.path("/auth/login").has("post"));
         assertTrue(paths.path("/usuarios").has("post"));
@@ -88,6 +93,13 @@ class OpenApiTest {
             assertTrue(json.has("schema"), rota[0]);
         }
         assertTrue(documento.path("components").path("securitySchemes").size() > 0);
+        for (var rota : new String[][] { { "/unidades", "get", "200" }, { "/unidades/{id}", "get", "200" }, { "/unidades/{id}/cardapio", "get", "200" },
+                { "/estoque", "get", "200" }, { "/estoque/movimentacoes", "post", "201" } }) {
+            var operacao = paths.path(rota[0]).path(rota[1]);
+            assertFalse(operacao.path("summary").asText().isBlank(), rota[0]);
+            var json = operacao.path("responses").path(rota[2]).path("content").path("application/json");
+            assertTrue(json.path("examples").size() > 0 || json.has("example"), rota[0]);
+        }
         JsonNode schemas = documento.path("components").path("schemas");
         assertTrue(schemas.path("Cadastro").path("required").toString().contains("cpf"));
         assertTrue(schemas.path("CadastroOperacional").path("required").toString().contains("unidadeId"));
