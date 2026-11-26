@@ -10,6 +10,7 @@ Esta seção reúne a documentação técnica do backend da rede Raízes do Nord
 - [Fluxo crítico](#fluxo-crítico)
 - [Modelagem e diagramas](#modelagem-e-diagramas)
 - [Arquitetura e contratos](#arquitetura-e-contratos)
+- [Testes](#testes)
 
 ## Análise e requisitos
 
@@ -99,6 +100,12 @@ Funcionalidades conceituais não geram tabelas de implementação no DER do MVP.
 | [Arquitetura do backend](arquitetura/arquitetura.md) | Camadas, dependências e responsabilidades da API, aplicação, domínio e infraestrutura. |
 | [Contratos da API](contratos/contratos.md) | Rotas, permissões, parâmetros, exemplos, respostas, códigos HTTP e padrão de erro do MVP. |
 | [Utilização da API implementada](api/api.md) | Acesso ao Swagger, autenticação e exemplos das rotas disponíveis. |
+
+[Voltar ao topo](#documentação)
+
+## Testes
+
+O [guia de testes do MVP](testes/testes.md) apresenta os cenários, a coleção do Insomnia, a execução e a verificação da auditoria no PostgreSQL.
 
 [Voltar ao topo](#documentação)
 

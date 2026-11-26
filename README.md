@@ -64,6 +64,16 @@ psql -h localhost -p 5432 -U raizes -d raizes_nordeste -v ON_ERROR_STOP=1 -v "ad
 
 O script usa a extensão PostgreSQL `pgcrypto` e pode ser repetido sem sobrescrever os registros existentes. A conta inicial usa `admin@raizes.local`, com senha protegida por bcrypt, custo 12 e salt individual. No Windows, se `psql` não estiver no PATH, use o caminho do executável, por exemplo `& "C:\Program Files\PostgreSQL\17\bin\psql.exe"`.
 
+## Testes do MVP
+
+Com o banco local preparado, migrations e seed aplicados, inicie a API e importe a [coleção Insomnia](insomnia/raizes-insomnia.json). O [guia de testes](docs/testes/testes.md) explica o ambiente, o token, a ordem das requisições, a simulação de pagamento e a conferência da auditoria. Registre os resultados em [insomnia/resultados.md](insomnia/resultados.md). Use dados fictícios e um banco de testes: os cenários criam pedidos e movimentam estoque.
+
+Para executar os testes automatizados do projeto:
+
+```powershell
+.\mvnw.cmd -B -ntp '-Dquarkus.http.test-port=0' verify
+```
+
 ## Referências
 
 - [Quarkus — Using Flyway](https://quarkus.io/guides/flyway)
