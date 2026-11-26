@@ -91,7 +91,8 @@ class UsuariosServiceTest {
     void loginValidoEmiteTokenComValidadeDeUmaHora() {
         var repositorio = new RepositorioFake();
         var id = UUID.randomUUID();
-        repositorio.salvo = new RepositorioUsuarios.Registro(id, "Pessoa", null, null, "pessoa@example.com", "hash", "CLIENTE", null);
+        repositorio.salvo = new RepositorioUsuarios.Registro(id, "Pessoa", null, null, "pessoa@example.com", "hash",
+                "CLIENTE", null);
         service.repositorio = repositorio;
         service.credenciais = new CredenciaisFake();
         Instant inicio = Instant.now();
@@ -107,8 +108,10 @@ class UsuariosServiceTest {
         repositorio.duplicado = true;
         service.repositorio = repositorio;
         service.credenciais = new CredenciaisFake();
-        var cadastro = new UsuariosService.Cadastro("Pessoa", "52998224725", LocalDate.of(2000, 1, 1), "pessoa@example.com", "Senha123");
-        assertEquals(409, assertThrows(FalhaAplicacao.class, () -> service.cadastrar(cadastro, "CLIENTE", null)).status());
+        var cadastro = new UsuariosService.Cadastro("Pessoa", "52998224725", LocalDate.of(2000, 1, 1),
+                "pessoa@example.com", "Senha123");
+        assertEquals(409,
+                assertThrows(FalhaAplicacao.class, () -> service.cadastrar(cadastro, "CLIENTE", null)).status());
     }
 
     @Test
@@ -116,15 +119,26 @@ class UsuariosServiceTest {
         var repositorio = new RepositorioFake();
         repositorio.unidadeExiste = false;
         service.repositorio = repositorio;
-        var cadastro = new UsuariosService.Cadastro("Pessoa", "52998224725", LocalDate.of(2000, 1, 1), "pessoa@example.com", "Senha123");
-        assertEquals(404, assertThrows(FalhaAplicacao.class, () -> service.cadastrar(cadastro, "COZINHA", UUID.randomUUID())).status());
+        var cadastro = new UsuariosService.Cadastro("Pessoa", "52998224725", LocalDate.of(2000, 1, 1),
+                "pessoa@example.com", "Senha123");
+        assertEquals(404,
+                assertThrows(FalhaAplicacao.class, () -> service.cadastrar(cadastro, "COZINHA", UUID.randomUUID()))
+                        .status());
         assertNull(repositorio.salvo);
     }
 
     private static class CredenciaisFake implements Credenciais {
-        public String gerarHash(String senha) { return "hash"; }
-        public boolean conferirSenha(String senha, String hash) { return "Senha123".equals(senha); }
-        public String gerarToken(UUID id, String perfil, Instant expiracao) { return "token-" + perfil; }
+        public String gerarHash(String senha) {
+            return "hash";
+        }
+
+        public boolean conferirSenha(String senha, String hash) {
+            return "Senha123".equals(senha);
+        }
+
+        public String gerarToken(UUID id, String perfil, Instant expiracao) {
+            return "token-" + perfil;
+        }
     }
 
     private static class RepositorioFake implements RepositorioUsuarios {
@@ -137,7 +151,8 @@ class UsuariosServiceTest {
         }
 
         public void inserir(Registro usuario) {
-            if (duplicado) throw new CadastroDuplicado();
+            if (duplicado)
+                throw new CadastroDuplicado();
             salvo = usuario;
         }
 
