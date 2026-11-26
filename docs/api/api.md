@@ -67,6 +67,20 @@ A resposta contém `token` e `expiraEm`. O token vale 60 minutos.
 { "unidadeId": "10000000-0000-0000-0000-000000000002" }
 ```
 
+### Unidades, cardápio e estoque
+
+`GET /unidades?page=1&limit=20`, `GET /unidades/10000000-0000-0000-0000-000000000001` e `GET /unidades/10000000-0000-0000-0000-000000000001/cardapio?page=1&limit=20` são públicos. O cardápio retorna produtos disponíveis com saldo positivo.
+
+`GET /estoque?page=1&limit=20` exige Administrador, Atendente ou Cozinha. Atendente e Cozinha consultam a unidade vinculada; somente Administrador pode informar o filtro `unidadeId`. A paginação começa em 1 e aceita limite de 1 a 100.
+
+`POST /estoque/movimentacoes` exige Administrador. O identificador é o da associação do produto à unidade, retornado na consulta de estoque:
+
+```json
+{ "produtoUnidadeId": "30000000-0000-0000-0000-000000000001", "tipo": "ENTRADA", "quantidade": 10 }
+```
+
+O tipo pode ser `ENTRADA` ou `SAIDA`; quantidade deve ser inteira e positiva. A resposta retorna o identificador do movimento e `saldoAtual`. Saída superior ao saldo retorna `409` sem alteração.
+
 ## Respostas
 
 Cadastro retorna `201`; login e alteração de unidade retornam `200`. Dados inválidos retornam `400`, token ausente ou inválido `401`, perfil sem permissão `403`, usuário ou unidade inexistente `404` e CPF/e-mail duplicado `409`, conforme a operação. Erros de validação retornam `codigo`, `mensagem` e `detalhes`; a mensagem de CPF, e-mail ou senha inválidos não identifica o campo específico.

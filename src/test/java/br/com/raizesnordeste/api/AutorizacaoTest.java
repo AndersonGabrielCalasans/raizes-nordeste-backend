@@ -1,7 +1,9 @@
 package br.com.raizesnordeste.api;
 
 import br.com.raizesnordeste.application.UsuariosService;
+import br.com.raizesnordeste.application.CatalogoService;
 import br.com.raizesnordeste.domain.Auditoria;
+import br.com.raizesnordeste.domain.RepositorioCatalogo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -82,7 +84,18 @@ class AutorizacaoTest {
         }
 
         @Override
-        public Set<Class<?>> getEnabledAlternatives() { return Set.of(UsuariosFalsos.class, AuditoriaFalsa.class); }
+        public Set<Class<?>> getEnabledAlternatives() { return Set.of(UsuariosFalsos.class, AuditoriaFalsa.class, CatalogoFalso.class); }
+    }
+
+    @Alternative
+    @ApplicationScoped
+    public static class CatalogoFalso extends CatalogoService {
+        @Override public RepositorioCatalogo.Pagina<RepositorioCatalogo.Saldo> estoque(UUID id, boolean admin, UUID unidade, int p, int l) {
+            return new RepositorioCatalogo.Pagina<>(java.util.List.of(), p, l, 0);
+        }
+        @Override public RepositorioCatalogo.Movimento movimentar(UUID id, Movimentacao dados) {
+            return new RepositorioCatalogo.Movimento(USUARIO_ID, dados.quantidade());
+        }
     }
 
     @Alternative
@@ -208,6 +221,20 @@ class AutorizacaoTest {
                 .filter(e -> e.operacao().equals("ACESSO_NEGADO")).count() < 2) Thread.sleep(50);
         assertTrue(AuditoriaFalsa.EVENTOS.stream().anyMatch(e -> e.operacao().equals("ACESSO_NEGADO") && e.responsavelId() == null));
         assertTrue(AuditoriaFalsa.EVENTOS.stream().anyMatch(e -> e.operacao().equals("ACESSO_NEGADO") && USUARIO_ID.equals(e.responsavelId())));
+    }
+
+    @Test
+    void estoqueRespeitaPerfisEExigeQuantidadeInteira() throws Exception {
+        String cliente = token("CLIENTE", Instant.now().plusSeconds(3600), chaveDeTeste());
+        String atendente = token("ATENDENTE", Instant.now().plusSeconds(3600), chaveDeTeste());
+        String admin = token("ADMINISTRADOR", Instant.now().plusSeconds(3600), chaveDeTeste());
+        String movimento = "{\"produtoUnidadeId\":\"30000000-0000-0000-0000-000000000001\",\"tipo\":\"ENTRADA\",\"quantidade\":1}";
+        assertEquals(401, enviar("GET", "/estoque", "", null).statusCode());
+        assertEquals(403, enviar("GET", "/estoque", "", cliente).statusCode());
+        assertEquals(200, enviar("GET", "/estoque", "", atendente).statusCode());
+        assertEquals(403, enviar("POST", "/estoque/movimentacoes", movimento, atendente).statusCode());
+        assertEquals(201, enviar("POST", "/estoque/movimentacoes", movimento, admin).statusCode());
+        assertEquals(400, enviar("POST", "/estoque/movimentacoes", movimento.replace(":1}", ":1.5}"), admin).statusCode());
     }
 }
 
