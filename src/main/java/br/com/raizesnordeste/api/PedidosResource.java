@@ -71,11 +71,15 @@ public class PedidosResource {
     @APIResponse(responseCode = "400", description = "Filtro ou paginação inválida")
     @APIResponse(responseCode = "401", description = "Token ausente ou inválido")
     @APIResponse(responseCode = "403", description = "Sem permissão")
+    @APIResponse(responseCode = "500", description = "Falha interna de persistência", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErro.class), examples = @ExampleObject(name = "Erro interno", value = "{\"codigo\":\"ERRO_INTERNO\",\"mensagem\":\"Não foi possível processar a solicitação.\",\"detalhes\":[]}")))
     public RepositorioPedidos.Pagina listar(@Parameter(description = "Canal de origem", example = "APP") @QueryParam("canalPedido") String canal,
             @Parameter(description = "Status operacional", example = "AGUARDANDO_PAGAMENTO") @QueryParam("status") String status,
             @Parameter(description = "Página inicial 1", example = "1") @DefaultValue("1") @QueryParam("page") int pagina,
             @Parameter(description = "Itens por página, entre 1 e 100", example = "20") @DefaultValue("20") @QueryParam("limit") int limite) {
-        return auditarRecusa(null, () -> pedidos.listar(usuario(), canal, status, pagina, limite));
+        UUID responsavel = usuario();
+        var paginaResultado = auditarRecusa(null, () -> pedidos.listar(responsavel, canal, status, pagina, limite));
+        auditoria.registrar(new Auditoria.Evento(responsavel, "CONSULTAR_PEDIDOS", "PEDIDO", null, "SUCESSO"));
+        return paginaResultado;
     }
 
     @GET
@@ -85,8 +89,12 @@ public class PedidosResource {
     @APIResponse(responseCode = "401", description = "Token ausente ou inválido")
     @APIResponse(responseCode = "403", description = "Pedido sem permissão")
     @APIResponse(responseCode = "404", description = "Pedido inexistente")
+    @APIResponse(responseCode = "500", description = "Falha interna de persistência", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErro.class), examples = @ExampleObject(name = "Erro interno", value = "{\"codigo\":\"ERRO_INTERNO\",\"mensagem\":\"Não foi possível processar a solicitação.\",\"detalhes\":[]}")))
     public RepositorioPedidos.Pedido buscar(@Parameter(description = "UUID do pedido", required = true, example = "50000000-0000-0000-0000-000000000001") @PathParam("id") UUID id) {
-        return auditarRecusa(id, () -> pedidos.buscar(usuario(), id));
+        UUID responsavel = usuario();
+        var pedido = auditarRecusa(id, () -> pedidos.buscar(responsavel, id));
+        auditoria.registrar(new Auditoria.Evento(responsavel, "CONSULTAR_PEDIDO", "PEDIDO", id, "SUCESSO"));
+        return pedido;
     }
 
     @POST

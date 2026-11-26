@@ -3,9 +3,11 @@ package br.com.raizesnordeste.api;
 import br.com.raizesnordeste.application.UsuariosService;
 import br.com.raizesnordeste.application.CatalogoService;
 import br.com.raizesnordeste.application.FluxoPedidoService;
+import br.com.raizesnordeste.application.PedidosService;
 import br.com.raizesnordeste.domain.Auditoria;
 import br.com.raizesnordeste.domain.RepositorioCatalogo;
 import br.com.raizesnordeste.domain.RepositorioFluxoPedido;
+import br.com.raizesnordeste.domain.RepositorioPedidos;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -33,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -86,7 +89,26 @@ class AutorizacaoTest {
         }
 
         @Override
-        public Set<Class<?>> getEnabledAlternatives() { return Set.of(UsuariosFalsos.class, AuditoriaFalsa.class, CatalogoFalso.class, FluxoFalso.class); }
+        public Set<Class<?>> getEnabledAlternatives() { return Set.of(UsuariosFalsos.class, AuditoriaFalsa.class, CatalogoFalso.class, FluxoFalso.class, PedidosFalsos.class); }
+    }
+
+    @Alternative
+    @ApplicationScoped
+    public static class PedidosFalsos extends PedidosService {
+        static final AtomicBoolean FALHAR = new AtomicBoolean();
+        static final AtomicBoolean NEGAR = new AtomicBoolean();
+
+        private RepositorioPedidos.Pedido pedido(UUID id) {
+            if (FALHAR.get()) throw new IllegalStateException("detalhe interno de banco");
+            if (NEGAR.get()) throw UsuariosService.erro(403, "ACESSO_NEGADO", "Pedido não disponível.");
+            return new RepositorioPedidos.Pedido(id, UNIDADE_ID, USUARIO_ID, USUARIO_ID, "APP",
+                    "RECEBIDO", "APROVADO", java.math.BigDecimal.TEN, java.util.List.of());
+        }
+
+        @Override public RepositorioPedidos.Pedido buscar(UUID usuario, UUID id) { return pedido(id); }
+        @Override public RepositorioPedidos.Pagina listar(UUID usuario, String canal, String status, int pagina, int limite) {
+            return new RepositorioPedidos.Pagina(java.util.List.of(pedido(USUARIO_ID)), pagina, limite, 1);
+        }
     }
 
     @Alternative
@@ -143,7 +165,12 @@ class AutorizacaoTest {
     }
 
     @BeforeEach
-    void limparContador() { UsuariosFalsos.ALTERACOES.set(0); }
+    void limparContador() {
+        UsuariosFalsos.ALTERACOES.set(0);
+        PedidosFalsos.FALHAR.set(false);
+        PedidosFalsos.NEGAR.set(false);
+        AuditoriaFalsa.EVENTOS.clear();
+    }
 
     private PrivateKey chaveDeTeste() throws Exception {
         var bytes = Files.readAllBytes(Path.of(System.getProperty("raizes.teste.chave.privada")));
@@ -272,6 +299,42 @@ class AutorizacaoTest {
                     .header("Authorization", "Bearer " + jwt).POST(HttpRequest.BodyPublishers.noBody()).build();
             assertEquals(200, CLIENTE.send(request, HttpResponse.BodyHandlers.ofString()).statusCode());
         }
+    }
+
+    @Test
+    void consultasAutorizadasRegistramAcessoSemExporDadosNoEvento() throws Exception {
+        String jwt = token("CLIENTE", Instant.now().plusSeconds(3600), chaveDeTeste());
+        assertEquals(200, enviar("GET", "/pedidos", "", jwt).statusCode());
+        assertEquals(200, enviar("GET", "/pedidos/" + USUARIO_ID, "", jwt).statusCode());
+        assertTrue(AuditoriaFalsa.EVENTOS.stream().anyMatch(e -> e.operacao().equals("CONSULTAR_PEDIDOS")
+                && USUARIO_ID.equals(e.responsavelId()) && e.recursoId() == null && e.resultado().equals("SUCESSO")));
+        assertTrue(AuditoriaFalsa.EVENTOS.stream().anyMatch(e -> e.operacao().equals("CONSULTAR_PEDIDO")
+                && USUARIO_ID.equals(e.responsavelId()) && USUARIO_ID.equals(e.recursoId()) && e.resultado().equals("SUCESSO")));
+    }
+
+    @Test
+    void consultaNegadaNaoRegistraAcessoBemSucedido() throws Exception {
+        PedidosFalsos.NEGAR.set(true);
+        String jwt = token("CLIENTE", Instant.now().plusSeconds(3600), chaveDeTeste());
+        assertEquals(403, enviar("GET", "/pedidos/" + USUARIO_ID, "", jwt).statusCode());
+        assertTrue(AuditoriaFalsa.EVENTOS.stream().anyMatch(e -> e.operacao().equals("ACESSO_NEGADO")));
+        assertFalse(AuditoriaFalsa.EVENTOS.stream().anyMatch(e -> e.operacao().equals("CONSULTAR_PEDIDO")));
+    }
+
+    @Test
+    void falhaInternaRetornaJsonGenericoSemDetalhesDoBanco() throws Exception {
+        PedidosFalsos.FALHAR.set(true);
+        String jwt = token("CLIENTE", Instant.now().plusSeconds(3600), chaveDeTeste());
+        var resposta = enviar("GET", "/pedidos/" + USUARIO_ID, "", jwt);
+        assertEquals(500, resposta.statusCode());
+        assertTrue(resposta.headers().firstValue("Content-Type").orElse("").startsWith("application/json"));
+        var json = new ObjectMapper().readTree(resposta.body());
+        assertEquals("ERRO_INTERNO", json.path("codigo").asText());
+        assertEquals("Não foi possível processar a solicitação.", json.path("mensagem").asText());
+        assertTrue(json.path("detalhes").isArray());
+        assertEquals(0, json.path("detalhes").size());
+        assertFalse(resposta.body().contains("detalhe interno de banco"));
+        assertFalse(AuditoriaFalsa.EVENTOS.stream().anyMatch(e -> e.operacao().equals("CONSULTAR_PEDIDO")));
     }
 }
 

@@ -109,6 +109,12 @@ class OpenApiTest {
             var json = operacao.path("responses").path(rota[2]).path("content").path("application/json");
             assertTrue(json.path("examples").size() > 0 || json.has("example"), rota[0]);
         }
+        for (String rota : new String[] { "/pedidos", "/pedidos/{id}" }) {
+            var erro = paths.path(rota).path("get").path("responses").path("500")
+                    .path("content").path("application/json");
+            assertTrue(erro.has("schema"), rota);
+            assertTrue(erro.path("examples").size() > 0 || erro.has("example"), rota);
+        }
         JsonNode schemas = documento.path("components").path("schemas");
         assertTrue(schemas.path("Cadastro").path("required").toString().contains("cpf"));
         assertTrue(schemas.path("CadastroOperacional").path("required").toString().contains("unidadeId"));
