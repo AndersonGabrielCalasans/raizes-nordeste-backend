@@ -12,7 +12,6 @@ Esta seção reúne a documentação técnica do backend da rede Raízes do Nord
 - [Arquitetura e contratos](#arquitetura-e-contratos)
 - [Testes](#testes)
 - [Privacidade](#privacidade)
-- [Conferência dos entregáveis](#conferência-dos-entregáveis)
 
 ## Análise e requisitos
 
@@ -116,12 +115,6 @@ O [plano de desempenho e recuperação](testes/desempenho-recuperacao.md) aprese
 ## Privacidade
 
 A [análise de privacidade](privacidade/privacidade.md) reúne os dados tratados, finalidades, controles e limitações de consentimento e retenção.
-
-[Voltar ao topo](#documentação)
-
-## Conferência dos entregáveis
-
-A [conferência da documentação e dos entregáveis](validacao/validacao.md) relaciona os pontos do roteiro às evidências existentes e registra as limitações. O [registro de assistência](validacao/assistencia.md) identifica o uso de IA no processo.
 
 [Voltar ao topo](#documentação)
 

@@ -2,7 +2,7 @@
 
 [Voltar ao índice da documentação](../README.md)
 
-Os requisitos a seguir descrevem as metas aprovadas. A [conferência dos entregáveis](../validacao/validacao.md) distingue o que foi implementado e verificado das limitações ainda existentes.
+Os requisitos a seguir descrevem as metas aprovadas. Os [resultados de desempenho e recuperação](../testes/desempenho-recuperacao.md) apresentam os testes locais e suas limitações.
 
 ## Índice
 

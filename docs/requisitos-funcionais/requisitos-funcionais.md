@@ -21,7 +21,7 @@
 
 O fluxo principal é Pedido → Pagamento mock → Status. A escolha considera a operação central da aplicação e a cobertura de boa parte dos requisitos obrigatórios do caso: criação de pedidos, integração de pagamento simulado e acompanhamento da evolução até a entrega. Esse fluxo conecta os comportamentos em uma operação completa, em vez de limitar a implementação a cadastros isolados.
 
-A cobertura de cada requisito distingue implementação prevista no MVP e descrição conceitual. Os requisitos descrevem o comportamento pretendido; a [conferência dos entregáveis](../validacao/validacao.md) apresenta o estado efetivo da implementação e as limitações, incluindo o adaptador de pagamento local.
+A cobertura de cada requisito distingue implementação prevista no MVP e descrição conceitual. A [documentação da API](../api/api.md) apresenta as operações implementadas. O pagamento utiliza um adaptador mock local, sem serviço externo HTTP.
 
 ## RF01 — Cadastrar usuários e definir perfil e unidade
 
