@@ -41,7 +41,7 @@ public class PedidosService {
         if (dados == null || dados.unidadeId() == null || dados.canalPedido() == null
                 || !Set.of("APP", "WEB", "BALCAO").contains(dados.canalPedido())
                 || dados.itens() == null || dados.itens().isEmpty())
-            throw UsuariosService.erro(400, "DADOS_INVALIDOS", "Informe unidade, canal e itens válidos.");
+            throw UsuariosService.erro(400, "DADOS_INVALIDOS", "Unidade, canal ou itens inválidos.");
         if (!(ator.perfil().equals("CLIENTE") && Set.of("APP", "WEB").contains(dados.canalPedido()))
                 && !(ator.perfil().equals("ATENDENTE") && dados.canalPedido().equals("BALCAO")))
             throw UsuariosService.erro(403, "ACESSO_NEGADO", "Perfil não autorizado para o canal.");
@@ -53,7 +53,7 @@ public class PedidosService {
         for (var item : dados.itens()) {
             if (item == null || item.produtoUnidadeId() == null || item.quantidade() == null || item.quantidade() <= 0)
                 throw UsuariosService.erro(400, "DADOS_INVALIDOS",
-                        "Informe produtos e quantidades inteiras positivas.");
+                        "Produtos inválidos ou quantidades inválidas; as quantidades devem ser inteiras e positivas.");
             try {
                 quantidades.merge(item.produtoUnidadeId(), item.quantidade(), Math::addExact);
             } catch (ArithmeticException e) {

@@ -91,7 +91,7 @@ public class FluxoPedidoService {
         if (!daUnidade(ator, pedido) || !(ator.perfil().equals("COZINHA") || ator.perfil().equals("ATENDENTE")))
             throw UsuariosService.erro(403, "ACESSO_NEGADO", "Operação não autorizada.");
         if (dados == null || dados.status() == null || !Set.of("EM_PREPARO", "PRONTO", "CONCLUIDO").contains(dados.status()))
-            throw UsuariosService.erro(400, "DADOS_INVALIDOS", "Informe um status operacional válido.");
+            throw UsuariosService.erro(400, "DADOS_INVALIDOS", "Status operacional inválido.");
         if ((dados.status().equals("CONCLUIDO") && !ator.perfil().equals("ATENDENTE"))
                 || (!dados.status().equals("CONCLUIDO") && !ator.perfil().equals("COZINHA")))
             throw UsuariosService.erro(403, "ACESSO_NEGADO", "Perfil sem permissão para este status.");

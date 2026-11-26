@@ -32,7 +32,7 @@ public class AuthResource {
     @Path("/cadastro")
     @PermitAll
     @Transactional
-    @Operation(summary = "Cadastrar cliente", description = "Cria uma conta com perfil Cliente. Informe CPF válido e único, e-mail único, data não futura e senha com pelo menos 8 caracteres, sem espaços. Os dados do exemplo são fictícios.")
+    @Operation(summary = "Cadastrar cliente", description = "Cria uma conta com perfil Cliente. Exige CPF válido e único, e-mail único, data não futura e senha com pelo menos 8 caracteres, sem espaços. Os dados do exemplo são fictícios.")
     @RequestBody(required = true, description = "Dados obrigatórios do cliente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuariosService.Cadastro.class), examples = @ExampleObject(name = "Cliente fictício", value = "{\"nome\":\"Cliente Exemplo\",\"cpf\":\"52998224725\",\"dataNascimento\":\"1990-03-10\",\"email\":\"cliente@example.com\",\"senha\":\"Senha123\"}")))
     @APIResponse(responseCode = "201", description = "Cliente cadastrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuariosService.Usuario.class), examples = @ExampleObject(name = "Cliente cadastrado", value = "{\"id\":\"40000000-0000-0000-0000-000000000002\",\"nome\":\"Cliente Exemplo\",\"perfil\":\"CLIENTE\",\"unidadeId\":null}")))
     @APIResponse(responseCode = "400", description = "Dados inválidos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErro.class), examples = @ExampleObject(name = "Dados inválidos", value = "{\"codigo\":\"DADOS_INVALIDOS\",\"mensagem\":\"CPF, e-mail ou senha inválidos.\",\"detalhes\":[]}")))
