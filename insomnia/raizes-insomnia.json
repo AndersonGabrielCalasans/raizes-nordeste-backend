@@ -1,0 +1,516 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_source": "raizes-nordeste-backend",
+  "resources": [
+    {
+      "_id": "wrk_raizes_mvp",
+      "_type": "workspace",
+      "name": "Raízes do Nordeste — testes do MVP",
+      "description": "Execute na ordem indicada no guia docs/testes/testes.md."
+    },
+    {
+      "_id": "env_raizes_mvp",
+      "_type": "environment",
+      "parentId": "wrk_raizes_mvp",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8080",
+        "cliente_email": "cliente.teste@example.com",
+        "cliente_cpf": "52998224725",
+        "cliente_senha": "Senha123",
+        "token_cliente": "COLE_O_TOKEN_DO_CLIENTE",
+        "pedido_aprovado_id": "COLE_O_ID_DO_PEDIDO_APROVADO",
+        "pedido_recusado_id": "COLE_O_ID_DO_PEDIDO_RECUSADO",
+        "unidade_id": "10000000-0000-0000-0000-000000000001",
+        "produto_unidade_id": "30000000-0000-0000-0000-000000000001"
+      }
+    },
+    {
+      "_id": "fld_0",
+      "_type": "request_group",
+      "parentId": "wrk_raizes_mvp",
+      "name": "01 — Acesso e cadastro",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1000
+    },
+    {
+      "_id": "fld_1",
+      "_type": "request_group",
+      "parentId": "wrk_raizes_mvp",
+      "name": "02 — Pedido e pagamento aprovado",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 2000
+    },
+    {
+      "_id": "fld_2",
+      "_type": "request_group",
+      "parentId": "wrk_raizes_mvp",
+      "name": "03 — Pagamento recusado",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 3000
+    },
+    {
+      "_id": "fld_3",
+      "_type": "request_group",
+      "parentId": "wrk_raizes_mvp",
+      "name": "04 — Erros e regras",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 4000
+    },
+    {
+      "_id": "req_t01",
+      "_type": "request",
+      "parentId": "fld_0",
+      "name": "T01 — Consultar unidades",
+      "description": "200; items contém a unidade inicial.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/unidades",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1000,
+      "body": {}
+    },
+    {
+      "_id": "req_t02",
+      "_type": "request",
+      "parentId": "fld_0",
+      "name": "T02 — Consultar cardápio",
+      "description": "200; items contém produto com estoque positivo.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/unidades/{{ _.unidade_id }}/cardapio",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2000,
+      "body": {}
+    },
+    {
+      "_id": "req_t03",
+      "_type": "request",
+      "parentId": "fld_0",
+      "name": "T03 — Cadastrar cliente",
+      "description": "201; perfil CLIENTE. Use CPF e e-mail fictícios ainda não cadastrados.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/cadastro",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3000,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Cliente Teste\",\n  \"cpf\": \"{{ _.cliente_cpf }}\",\n  \"dataNascimento\": \"1990-03-10\",\n  \"email\": \"{{ _.cliente_email }}\",\n  \"senha\": \"{{ _.cliente_senha }}\"\n}"
+      }
+    },
+    {
+      "_id": "req_t04",
+      "_type": "request",
+      "parentId": "fld_0",
+      "name": "T04 — Login válido",
+      "description": "200; copie token para token_cliente no ambiente.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/login",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 4000,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"{{ _.cliente_email }}\",\n  \"senha\": \"{{ _.cliente_senha }}\"\n}"
+      }
+    },
+    {
+      "_id": "req_t05",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "T05 — Criar pedido para aprovação",
+      "description": "201; status AGUARDANDO_PAGAMENTO, pagamento PENDENTE. Copie id para pedido_aprovado_id.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pedidos",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 5000,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"unidadeId\": \"{{ _.unidade_id }}\",\n  \"canalPedido\": \"APP\",\n  \"itens\": [\n    {\n      \"produtoUnidadeId\": \"{{ _.produto_unidade_id }}\",\n      \"quantidade\": 1\n    }\n  ]\n}"
+      }
+    },
+    {
+      "_id": "req_t06",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "T06 — Aprovar pagamento",
+      "description": "Mock APROVADO: 200, resultado APROVADO e statusPedido RECEBIDO.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pedidos/{{ _.pedido_aprovado_id }}/pagamentos",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 6000,
+      "body": {}
+    },
+    {
+      "_id": "req_t07",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "T07 — Consultar pedido pago",
+      "description": "200; status RECEBIDO, situacaoPagamento APROVADO.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/pedidos/{{ _.pedido_aprovado_id }}",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 7000,
+      "body": {}
+    },
+    {
+      "_id": "req_t08",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "T08 — Cancelar pedido pago",
+      "description": "200; status CANCELADO, situacaoPagamento ESTORNADO. Estoque é restituído.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pedidos/{{ _.pedido_aprovado_id }}/cancelamento",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 8000,
+      "body": {}
+    },
+    {
+      "_id": "req_t09",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "T09 — Criar pedido para recusa",
+      "description": "201; copie id para pedido_recusado_id.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pedidos",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 9000,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"unidadeId\": \"{{ _.unidade_id }}\",\n  \"canalPedido\": \"APP\",\n  \"itens\": [\n    {\n      \"produtoUnidadeId\": \"{{ _.produto_unidade_id }}\",\n      \"quantidade\": 1\n    }\n  ]\n}"
+      }
+    },
+    {
+      "_id": "req_t10",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "T10 — Recusar pagamento",
+      "description": "Reinicie a API com RAIZES_PAGAMENTO_MOCK=RECUSADO: 200, resultado RECUSADO e statusPedido AGUARDANDO_PAGAMENTO.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pedidos/{{ _.pedido_recusado_id }}/pagamentos",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 10000,
+      "body": {}
+    },
+    {
+      "_id": "req_t11",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "T11 — Consultar pedido recusado",
+      "description": "200; status AGUARDANDO_PAGAMENTO e situacaoPagamento RECUSADO.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/pedidos/{{ _.pedido_recusado_id }}",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 11000,
+      "body": {}
+    },
+    {
+      "_id": "req_t12",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "T12 — Acesso sem token",
+      "description": "401; codigo NAO_AUTENTICADO.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/pedidos",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 12000,
+      "body": {}
+    },
+    {
+      "_id": "req_t13",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "T13 — Cliente sem permissão",
+      "description": "403; codigo ACESSO_NEGADO.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/estoque",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 13000,
+      "body": {}
+    },
+    {
+      "_id": "req_t14",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "T14 — Canal obrigatório ausente",
+      "description": "400; codigo DADOS_INVALIDOS.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pedidos",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 14000,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"unidadeId\": \"{{ _.unidade_id }}\",\n  \"itens\": [\n    {\n      \"produtoUnidadeId\": \"{{ _.produto_unidade_id }}\",\n      \"quantidade\": 1\n    }\n  ]\n}"
+      }
+    },
+    {
+      "_id": "req_t15",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "T15 — Quantidade inválida",
+      "description": "400; codigo DADOS_INVALIDOS.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pedidos",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 15000,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"unidadeId\": \"{{ _.unidade_id }}\",\n  \"canalPedido\": \"APP\",\n  \"itens\": [\n    {\n      \"produtoUnidadeId\": \"{{ _.produto_unidade_id }}\",\n      \"quantidade\": -1\n    }\n  ]\n}"
+      }
+    },
+    {
+      "_id": "req_t16",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "T16 — Produto inexistente",
+      "description": "404; codigo PRODUTO_NAO_ENCONTRADO.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pedidos",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 16000,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"unidadeId\": \"{{ _.unidade_id }}\",\n  \"canalPedido\": \"APP\",\n  \"itens\": [\n    {\n      \"produtoUnidadeId\": \"99999999-9999-9999-9999-999999999999\",\n      \"quantidade\": 1\n    }\n  ]\n}"
+      }
+    },
+    {
+      "_id": "req_t17",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "T17 — Estoque insuficiente",
+      "description": "409; codigo ESTOQUE_INSUFICIENTE, desde que saldo seja menor que 1.000.000.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pedidos",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 17000,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"unidadeId\": \"{{ _.unidade_id }}\",\n  \"canalPedido\": \"APP\",\n  \"itens\": [\n    {\n      \"produtoUnidadeId\": \"{{ _.produto_unidade_id }}\",\n      \"quantidade\": 1000000\n    }\n  ]\n}"
+      }
+    },
+    {
+      "_id": "req_t18",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "T18 — Repetir cancelamento",
+      "description": "409; codigo CANCELAMENTO_INVALIDO, sem nova restituição.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pedidos/{{ _.pedido_aprovado_id }}/cancelamento",
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        }
+      ],
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 18000,
+      "body": {}
+    }
+  ]
+}

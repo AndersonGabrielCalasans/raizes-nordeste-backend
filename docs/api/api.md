@@ -117,6 +117,6 @@ Cadastro retorna `201`; login e alteração de unidade retornam `200`. Dados inv
 
 ## Auditoria
 
-Cadastro, login e alterações de equipe são registrados em `eventos_auditoria`. Recusas de autenticação e autorização nas rotas de equipe também são registradas; esses eventos são processados assincronamente e podem aparecer após a resposta. Os registros não incluem credenciais nem dados pessoais completos. Eventos de pedidos e estoque serão integrados às respectivas funcionalidades.
+Cadastro, login, alterações de equipe, pedidos, pagamento e movimentações de estoque geram registros em `eventos_auditoria`. Algumas recusas de autenticação e autorização são processadas assincronamente e podem aparecer após a resposta. Os registros não incluem credenciais nem dados pessoais completos. O [guia de testes](../testes/testes.md) apresenta uma consulta para verificar eventos de pedido.
 
 [Voltar ao topo](#utilização-da-api-implementada)
