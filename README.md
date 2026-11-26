@@ -50,6 +50,8 @@ Na pasta do projeto, inicie a aplicação:
 
 A aplicação estará disponível em `http://localhost:8080`; a saúde da aplicação e do banco pode ser consultada em `http://localhost:8080/q/health`. Para encerrar, pressione `Ctrl+C` no terminal.
 
+A documentação interativa das rotas implementadas está em [Swagger UI](http://localhost:8080/q/swagger-ui/); a especificação OpenAPI está em [OpenAPI](http://localhost:8080/q/openapi). Consulte o [guia de utilização](docs/api/api.md) para autenticação e exemplos de preenchimento.
+
 Ao iniciar, o Flyway aplica as migrations em `src/main/resources/db/migration` em um banco vazio. O arquivo `.env` não é versionado.
 
 Após a primeira inicialização, carregue dados fictícios em outro terminal, na pasta do projeto. Informe um CPF fictício válido e uma senha local com pelo menos oito caracteres, sem espaços:
@@ -60,13 +62,14 @@ $senhaAdmin = Read-Host "Senha local do administrador"
 psql -h localhost -p 5432 -U raizes -d raizes_nordeste -v ON_ERROR_STOP=1 -v "admin_cpf=$cpfAdmin" -v "admin_senha=$senhaAdmin" -f migrations/dados-iniciais.sql
 ```
 
-O script usa a extensão PostgreSQL `pgcrypto` e pode ser repetido sem sobrescrever os registros existentes. A conta inicial usa `admin@raizes.local`, com senha protegida por bcrypt, custo 12 e salt individual; o login será implementado na etapa de autenticação. No Windows, se `psql` não estiver no PATH, use o caminho do executável, por exemplo `& "C:\Program Files\PostgreSQL\17\bin\psql.exe"`.
+O script usa a extensão PostgreSQL `pgcrypto` e pode ser repetido sem sobrescrever os registros existentes. A conta inicial usa `admin@raizes.local`, com senha protegida por bcrypt, custo 12 e salt individual. No Windows, se `psql` não estiver no PATH, use o caminho do executável, por exemplo `& "C:\Program Files\PostgreSQL\17\bin\psql.exe"`.
 
 ## Referências
 
 - [Quarkus — Using Flyway](https://quarkus.io/guides/flyway)
 - [Quarkus — Getting Started](https://quarkus.io/guides/getting-started)
 - [Quarkus — Using JWT RBAC](https://quarkus.io/guides/security-jwt)
+- [Quarkus — Using OpenAPI and Swagger UI](https://quarkus.io/guides/openapi-swaggerui)
 
 ## Acompanhamento
 

@@ -98,6 +98,7 @@ Funcionalidades conceituais não geram tabelas de implementação no DER do MVP.
 |---|---|
 | [Arquitetura do backend](arquitetura/arquitetura.md) | Camadas, dependências e responsabilidades da API, aplicação, domínio e infraestrutura. |
 | [Contratos da API](contratos/contratos.md) | Rotas, permissões, parâmetros, exemplos, respostas, códigos HTTP e padrão de erro do MVP. |
+| [Utilização da API implementada](api/api.md) | Acesso ao Swagger, autenticação e exemplos das rotas disponíveis. |
 
 [Voltar ao topo](#documentação)
 
