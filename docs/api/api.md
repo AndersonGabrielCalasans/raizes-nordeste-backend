@@ -7,6 +7,7 @@
 - [Swagger e autorização](#swagger-e-autorização)
 - [Exemplos de requisições](#exemplos-de-requisições)
 - [Respostas](#respostas)
+- [Auditoria](#auditoria)
 
 ## Swagger e autorização
 
@@ -69,5 +70,9 @@ A resposta contém `token` e `expiraEm`. O token vale 60 minutos.
 ## Respostas
 
 Cadastro retorna `201`; login e alteração de unidade retornam `200`. Dados inválidos retornam `400`, token ausente ou inválido `401`, perfil sem permissão `403`, usuário ou unidade inexistente `404` e CPF/e-mail duplicado `409`, conforme a operação. Erros de validação retornam `codigo`, `mensagem` e `detalhes`; a mensagem de CPF, e-mail ou senha inválidos não identifica o campo específico.
+
+## Auditoria
+
+Cadastro, login e alterações de equipe são registrados em `eventos_auditoria`. Recusas de autenticação e autorização nas rotas de equipe também são registradas; esses eventos são processados assincronamente e podem aparecer após a resposta. Os registros não incluem credenciais nem dados pessoais completos. Eventos de pedidos e estoque serão integrados às respectivas funcionalidades.
 
 [Voltar ao topo](#utilização-da-api-implementada)
