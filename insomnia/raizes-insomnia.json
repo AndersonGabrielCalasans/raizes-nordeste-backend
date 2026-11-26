@@ -7,7 +7,7 @@
       "_id": "wrk_raizes_mvp",
       "_type": "workspace",
       "name": "Raízes do Nordeste — testes do MVP",
-      "description": "Execute na ordem indicada no guia docs/testes/testes.md."
+      "description": "Execução na ordem indicada no guia docs/testes/testes.md."
     },
     {
       "_id": "env_raizes_mvp",
@@ -105,7 +105,7 @@
       "_type": "request",
       "parentId": "fld_0",
       "name": "T03 — Cadastrar cliente",
-      "description": "201; perfil CLIENTE. Use CPF e e-mail fictícios ainda não cadastrados.",
+      "description": "201; perfil CLIENTE. CPF e e-mail fictícios ainda não cadastrados são necessários.",
       "method": "POST",
       "url": "{{ _.base_url }}/auth/cadastro",
       "headers": [
@@ -131,7 +131,7 @@
       "_type": "request",
       "parentId": "fld_0",
       "name": "T04 — Login válido",
-      "description": "200; copie token para token_cliente no ambiente.",
+      "description": "200; o token da resposta é copiado para token_cliente no ambiente.",
       "method": "POST",
       "url": "{{ _.base_url }}/auth/login",
       "headers": [
@@ -157,7 +157,7 @@
       "_type": "request",
       "parentId": "fld_1",
       "name": "T05 — Criar pedido para aprovação",
-      "description": "201; status AGUARDANDO_PAGAMENTO, pagamento PENDENTE. Copie id para pedido_aprovado_id.",
+      "description": "201; status AGUARDANDO_PAGAMENTO, pagamento PENDENTE. O id é copiado para pedido_aprovado_id.",
       "method": "POST",
       "url": "{{ _.base_url }}/pedidos",
       "headers": [
@@ -256,7 +256,7 @@
       "_type": "request",
       "parentId": "fld_2",
       "name": "T09 — Criar pedido para recusa",
-      "description": "201; copie id para pedido_recusado_id.",
+      "description": "201; o id é copiado para pedido_recusado_id.",
       "method": "POST",
       "url": "{{ _.base_url }}/pedidos",
       "headers": [
@@ -286,7 +286,7 @@
       "_type": "request",
       "parentId": "fld_2",
       "name": "T10 — Recusar pagamento",
-      "description": "Reinicie a API com RAIZES_PAGAMENTO_MOCK=RECUSADO: 200, resultado RECUSADO e statusPedido AGUARDANDO_PAGAMENTO.",
+      "description": "Após reiniciar a API com RAIZES_PAGAMENTO_MOCK=RECUSADO: 200, resultado RECUSADO e statusPedido AGUARDANDO_PAGAMENTO.",
       "method": "POST",
       "url": "{{ _.base_url }}/pedidos/{{ _.pedido_recusado_id }}/pagamentos",
       "headers": [

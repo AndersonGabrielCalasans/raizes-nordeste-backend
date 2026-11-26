@@ -67,6 +67,6 @@ classDiagram
     Usuario "0..1" --> "0..*" EventoAuditoria
 ```
 
-O diagrama mostra a visão de domínio. Perfil, canal, status e resultado de pagamento são valores controlados; persistência e detalhes de integração permanecem fora das classes de domínio.
+O diagrama mostra uma visão conceitual de domínio: os métodos representam responsabilidades e não correspondem necessariamente a métodos em classes Java com esses nomes. Na implementação, casos de uso são orquestrados por serviços da camada de aplicação e os dados são representados por registros e portas de repositório. Perfil, canal, status e resultado de pagamento são valores controlados.
 
 [Voltar ao topo](#diagrama-de-classes)

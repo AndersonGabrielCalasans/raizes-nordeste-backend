@@ -11,13 +11,13 @@
 
 ## Swagger e autorização
 
-Com a aplicação iniciada conforme o [README](../../README.md), acesse `http://localhost:8080/q/swagger-ui/`. A especificação está em `http://localhost:8080/q/openapi`. O Swagger apresenta somente rotas já implementadas; o [contrato do MVP](../contratos/contratos.md) inclui também rotas planejadas.
+Com a aplicação iniciada conforme o [README](../../README.md), o Swagger está disponível em `http://localhost:8080/q/swagger-ui/` e a especificação em `http://localhost:8080/q/openapi`. O Swagger e o [contrato do MVP](../contratos/contratos.md) descrevem as rotas implementadas; funcionalidades conceituais são identificadas separadamente.
 
-Para executar uma operação, abra a rota, selecione **Try it out**, preencha os campos e clique em **Execute**. Para operações da equipe, faça login com uma conta Administrador, copie o campo `token` da resposta e informe-o em **Authorize**. A interface adiciona o prefixo `Bearer` automaticamente.
+Para executar uma operação, a rota é aberta, a opção **Try it out** é selecionada e os campos são preenchidos antes de acionar **Execute**. Para operações da equipe, o login é feito com uma conta Administrador e o campo `token` da resposta é informado em **Authorize**. A interface adiciona o prefixo `Bearer` automaticamente.
 
 ## Exemplos de requisições
 
-Os exemplos são fictícios. Use CPF matematicamente válido e não cadastrado, e-mail ainda não utilizado e senha com pelo menos oito caracteres sem espaços. As unidades dos exemplos dependem do carregamento dos dados iniciais; substitua os identificadores quando necessário.
+Os exemplos são fictícios. O cadastro exige CPF matematicamente válido e não cadastrado, e-mail ainda não utilizado e senha com pelo menos oito caracteres, sem espaços e com no máximo 72 bytes em UTF-8. As unidades dos exemplos dependem do carregamento dos dados iniciais; os identificadores podem ser substituídos quando necessário.
 
 ### Cadastro público de Cliente
 
@@ -35,7 +35,7 @@ Os exemplos são fictícios. Use CPF matematicamente válido e não cadastrado, 
 
 ### Login
 
-`POST /auth/login` — não exige token; utilize as credenciais de uma conta cadastrada:
+`POST /auth/login` — não exige token e recebe as credenciais de uma conta cadastrada:
 
 ```json
 { "email": "cliente@example.com", "senha": "Senha123" }
@@ -45,7 +45,7 @@ A resposta contém `token` e `expiraEm`. O token vale 60 minutos.
 
 ### Cadastro de equipe
 
-`POST /usuarios` — exige Administrador. Informe `ATENDENTE` ou `COZINHA` e uma unidade existente:
+`POST /usuarios` — exige Administrador e recebe `ATENDENTE` ou `COZINHA` e uma unidade existente:
 
 ```json
 {
@@ -61,7 +61,7 @@ A resposta contém `token` e `expiraEm`. O token vale 60 minutos.
 
 ### Alteração de unidade
 
-`PATCH /usuarios/{id}/unidade` — exige Administrador. No caminho, informe o UUID do Atendente ou Cozinha retornado pelo cadastro; no corpo, informe o UUID da nova unidade:
+`PATCH /usuarios/{id}/unidade` — exige Administrador. O caminho recebe o UUID do Atendente ou Cozinha retornado pelo cadastro; o corpo recebe o UUID da nova unidade:
 
 ```json
 { "unidadeId": "10000000-0000-0000-0000-000000000002" }
@@ -99,7 +99,7 @@ A API calcula os valores e baixa o estoque na criação. `GET /pedidos?page=1&li
 
 `POST /pedidos/{id}/pagamentos` solicita o pagamento simulado sem corpo. Cliente paga o próprio pedido APP/WEB; Atendente paga pedido BALCAO de sua unidade. A resposta inclui `tentativaId`, `pedidoId`, `resultado`, `situacaoPagamento` e `statusPedido`. Repetir uma solicitação após aprovação retorna a mesma tentativa, sem novo pagamento. Recusa e falha permitem nova tentativa.
 
-O gateway é um adaptador mock local, sem cobrança real. Para simular o retorno, configure `RAIZES_PAGAMENTO_MOCK` no ambiente como `APROVADO` (padrão), `RECUSADO`, `FALHA` ou `TIMEOUT` e reinicie a API. O limite de espera é de cinco segundos; timeout gera resultado `FALHA`.
+O gateway é um adaptador mock local, sem cobrança real. Para simular o retorno, `RAIZES_PAGAMENTO_MOCK` é configurado no ambiente como `APROVADO` (padrão), `RECUSADO`, `FALHA` ou `TIMEOUT`, seguido do reinício da API. O limite de espera é de cinco segundos; timeout gera resultado `FALHA`.
 
 `PATCH /pedidos/{id}/status` recebe, por exemplo:
 
@@ -117,6 +117,6 @@ Cadastro retorna `201`; login e alteração de unidade retornam `200`. Dados inv
 
 ## Auditoria
 
-Cadastro, login, alterações de equipe, pedidos, pagamento e movimentações de estoque geram registros em `eventos_auditoria`. Algumas recusas de autenticação e autorização são processadas assincronamente e podem aparecer após a resposta. Os registros não incluem credenciais nem dados pessoais completos. O [guia de testes](../testes/testes.md) apresenta uma consulta para verificar eventos de pedido.
+Cadastro, login, alterações de equipe, pedidos, pagamento e movimentações de estoque geram registros em `eventos_auditoria`. Consultas autorizadas de pedidos registram `CONSULTAR_PEDIDOS` para listagens e `CONSULTAR_PEDIDO` para consultas por identificador. Algumas recusas de autenticação e autorização são processadas assincronamente e podem aparecer após a resposta. Os registros não incluem credenciais nem dados pessoais completos. O [guia de testes](../testes/testes.md) apresenta uma consulta para verificar eventos de pedido.
 
 [Voltar ao topo](#utilização-da-api-implementada)

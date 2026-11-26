@@ -11,6 +11,8 @@ Esta seção reúne a documentação técnica do backend da rede Raízes do Nord
 - [Modelagem e diagramas](#modelagem-e-diagramas)
 - [Arquitetura e contratos](#arquitetura-e-contratos)
 - [Testes](#testes)
+- [Privacidade](#privacidade)
+- [Conferência dos entregáveis](#conferência-dos-entregáveis)
 
 ## Análise e requisitos
 
@@ -29,7 +31,7 @@ O MVP contempla o fluxo Pedido → Pagamento mock → Status, por representar a 
 | Conceitual | Gestão administrativa de unidades/produtos, TOTEM, fidelidade, campanhas, Owner, múltiplos perfis e vínculo de pedido BALCAO ao Cliente. |
 | Base técnica | Quarkus, persistência real em PostgreSQL, migrations Flyway, DER compatível com o banco, execução local e OpenAPI/Swagger. |
 
-Unidades, produtos, preços e associações iniciais ao cardápio serão provisionados no ambiente. O recorte permite concluir e testar o fluxo principal sem implementar os módulos conceituais. Regras detalhadas: RF01–RF10 e RNF01–RNF08 nos documentos acima.
+Unidades, produtos, preços e associações iniciais ao cardápio são provisionados no ambiente pelo seed. O recorte permite testar o fluxo principal sem implementar os módulos conceituais. Regras detalhadas: RF01–RF10 e RNF01–RNF08 nos documentos acima.
 
 [Voltar ao topo](#documentação)
 
@@ -44,7 +46,7 @@ Consultas de unidades/cardápio, cadastro público de Cliente e login dispensam 
 | Cozinha | Consulta pedidos permitidos, inicia preparo e marca pronto na própria unidade. Consulta o estoque da unidade. |
 | Administrador | Cadastra Atendente/Cozinha e altera sua unidade; consulta pedidos/estoque da rede, registra movimentações manuais e cancela pedidos conforme as regras. |
 
-Atendente e Cozinha não acessam CPF, nascimento ou e-mail do Cliente nas consultas de pedidos. O mock de pagamentos é uma integração externa simulada, sem perfil humano. Requisitos relacionados: RF01, RF02, RF05–RF08 e RNF02–RNF03.
+Atendente e Cozinha não acessam CPF, nascimento ou e-mail do Cliente nas consultas de pedidos. O pagamento usa um adaptador mock local síncrono, sem serviço externo HTTP ou callback. Requisitos relacionados: RF01, RF02, RF05–RF08 e RNF02–RNF03.
 
 [Voltar ao topo](#documentação)
 
@@ -108,6 +110,18 @@ Funcionalidades conceituais não geram tabelas de implementação no DER do MVP.
 O [guia de testes do MVP](testes/testes.md) apresenta os cenários, a coleção do Insomnia, a execução e a verificação da auditoria no PostgreSQL.
 
 O [plano de desempenho e recuperação](testes/desempenho-recuperacao.md) apresenta o cenário local, sua reprodução e os resultados dos RNF05 e RNF06.
+
+[Voltar ao topo](#documentação)
+
+## Privacidade
+
+A [análise de privacidade](privacidade/privacidade.md) reúne os dados tratados, finalidades, controles e limitações de consentimento e retenção.
+
+[Voltar ao topo](#documentação)
+
+## Conferência dos entregáveis
+
+A [conferência da documentação e dos entregáveis](validacao/validacao.md) relaciona os pontos do roteiro às evidências existentes e registra as limitações. O [registro de assistência](validacao/assistencia.md) identifica o uso de IA no processo.
 
 [Voltar ao topo](#documentação)
 

@@ -2,6 +2,8 @@
 
 [Voltar ao índice da documentação](../README.md)
 
+Os requisitos a seguir descrevem as metas aprovadas. A [conferência dos entregáveis](../validacao/validacao.md) distingue o que foi implementado e verificado das limitações ainda existentes.
+
 ## Índice
 
 - [RNF01 — Proteger credenciais e autenticação](#rnf01--proteger-credenciais-e-autenticação)
@@ -12,6 +14,7 @@
 - [RNF06 — Manter disponibilidade e permitir recuperação](#rnf06--manter-disponibilidade-e-permitir-recuperação)
 - [RNF07 — Tolerar falhas na integração de pagamento](#rnf07--tolerar-falhas-na-integração-de-pagamento)
 - [RNF08 — Documentar a API com OpenAPI](#rnf08--documentar-a-api-com-openapi)
+- [Base do projeto](#base-do-projeto)
 
 ## RNF01 — Proteger credenciais e autenticação
 
@@ -153,5 +156,11 @@
 **Aceitação:** Swagger acessível conforme o README; documentação corresponde às operações, validações e respostas reais da API.
 
 **Cobertura:** implementação e verificação previstas no MVP.
+
+[Voltar ao topo](#requisitos-não-funcionais)
+
+## Base do projeto
+
+Os requisitos consideram **Projeto Multidisciplinar — Estudo de Caso**, páginas 4–7, e **Roteiro de Atividade Prática — Projeto Back-End**, páginas 5–13 e 18, contando a capa. Metas de carga e recuperação e outras escolhas específicas do MVP foram definidas para o projeto e não são apresentadas como parâmetros textuais dessas fontes.
 
 [Voltar ao topo](#requisitos-não-funcionais)

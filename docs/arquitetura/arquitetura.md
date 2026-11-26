@@ -9,7 +9,7 @@ flowchart LR
     api[API: controllers, DTOs, JWT e OpenAPI]
     app[Application: casos de uso e orquestração]
     domain[Domain: entidades, regras e portas]
-    infra[Infrastructure: PostgreSQL, Flyway, JPA, gateway mock e auditoria]
+    infra[Infrastructure: PostgreSQL, Flyway, JDBC, gateway mock e auditoria]
 
     api --> app
     app --> domain
@@ -27,7 +27,7 @@ Controllers dependem dos casos de uso. Casos de uso dependem das entidades e das
 
 ## Limites do MVP
 
-O backend implementará pedidos APP, WEB e BALCAO, estoque por unidade, pagamento mock, status, cancelamento e auditoria. TOTEM, PICKUP, fidelidade, campanhas, Owner, múltiplos perfis, gestão completa de unidades e produtos permanecem conceituais.
+O backend implementa pedidos APP, WEB e BALCAO, estoque por unidade, pagamento mock local, status, cancelamento e registros de auditoria. O mock é um adaptador síncrono na própria API, sem serviço HTTP externo ou callback. TOTEM, PICKUP, fidelidade, campanhas, Owner, múltiplos perfis, gestão completa de unidades e produtos permanecem conceituais.
 
 Requisitos relacionados: RF01–RF08 e RNF01–RNF04, RNF07–RNF08.
 

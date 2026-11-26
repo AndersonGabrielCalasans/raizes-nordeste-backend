@@ -15,12 +15,13 @@
 - [RF08 — Solicitar pagamento simulado e registrar retorno](#rf08--solicitar-pagamento-simulado-e-registrar-retorno)
 - [RF09 — Acumular e resgatar pontos com consentimento](#rf09--acumular-e-resgatar-pontos-com-consentimento)
 - [RF10 — Aplicar promoções e campanhas](#rf10--aplicar-promoções-e-campanhas)
+- [Base do projeto](#base-do-projeto)
 
 ## Fluxo principal e justificativa
 
-O fluxo principal é Pedido → Pagamento mock → Status. Sua escolha decorre de representar a operação central da aplicação e permitir a cobertura de boa parte dos requisitos obrigatórios do caso: criação de pedidos, integração de pagamento simulado e acompanhamento de sua evolução até a entrega. Esse fluxo conecta os comportamentos em uma operação completa, em vez de limitar a implementação a cadastros isolados.
+O fluxo principal é Pedido → Pagamento mock → Status. A escolha considera a operação central da aplicação e a cobertura de boa parte dos requisitos obrigatórios do caso: criação de pedidos, integração de pagamento simulado e acompanhamento da evolução até a entrega. Esse fluxo conecta os comportamentos em uma operação completa, em vez de limitar a implementação a cadastros isolados.
 
-A cobertura de cada requisito distingue implementação prevista no MVP e descrição conceitual.
+A cobertura de cada requisito distingue implementação prevista no MVP e descrição conceitual. Os requisitos descrevem o comportamento pretendido; a [conferência dos entregáveis](../validacao/validacao.md) apresenta o estado efetivo da implementação e as limitações, incluindo o adaptador de pagamento local.
 
 ## RF01 — Cadastrar usuários e definir perfil e unidade
 
@@ -341,5 +342,11 @@ A cobertura de cada requisito distingue implementação prevista no MVP e descri
 7. Configuração por perfil sem permissão é recusada; campanha segmentada por idade ou perfil não utiliza os dados do Cliente sem consentimento específico.
 
 **Cobertura:** apenas conceitual. Configuração de campanhas, cálculo de descontos, segmentação e controle de limites não terão implementação nem testes executáveis no MVP. Percentual, subtotal mínimo e exemplos de limites são escolhas de projeto; teto em reais e limites de utilização são configuráveis por campanha.
+
+[Voltar ao topo](#requisitos-funcionais)
+
+## Base do projeto
+
+Os requisitos foram elaborados a partir de **Projeto Multidisciplinar — Estudo de Caso**, páginas 4–7, e **Roteiro de Atividade Prática — Projeto Back-End**, páginas 5–13 e 18. A paginação conta a capa. Os detalhes de operação e os limites do MVP incluem decisões de projeto aprovadas, que não devem ser confundidas com transcrições dessas fontes.
 
 [Voltar ao topo](#requisitos-funcionais)

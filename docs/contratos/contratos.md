@@ -8,19 +8,19 @@
 - Listagens usam `page` e `limit`; `page` inicia em 1, `limit` padrão é 20 e o máximo é 100.
 - Resposta paginada: `{ "items": [], "page": 1, "limit": 20, "total": 0 }`.
 - Operações protegidas exigem JWT. Ausência ou token inválido retorna `401`; token válido sem permissão retorna `403`.
-- O campo obrigatório `canalPedido` admite `APP`, `WEB`, `BALCAO`, `TOTEM` e `PICKUP`. TOTEM e PICKUP retornam `422` no MVP, pois sua operação permanece conceitual.
+- O domínio inclui `APP`, `WEB`, `BALCAO`, `TOTEM` e `PICKUP`. Na criação, a API aceita APP/WEB para Cliente e BALCAO para Atendente; TOTEM e PICKUP retornam `400`, pois permanecem conceituais. Os cinco valores são aceitos como filtro de listagem.
 
 ## Erro padrão
 
 ```json
 {
   "codigo": "ESTOQUE_INSUFICIENTE",
-  "mensagem": "Saldo indisponível para um ou mais itens.",
+  "mensagem": "Produto indisponível ou estoque insuficiente.",
   "detalhes": []
 }
 ```
 
-`codigo` identifica a regra ou validação recusada; `detalhes` contém campos inválidos quando aplicável. Respostas não incluem senha, hash, token completo ou dados pessoais fora da permissão.
+`codigo` identifica a regra ou validação recusada; `detalhes` contém informações adicionais quando aplicável. Erros de negócio, recusas de segurança e falhas internas representadas por `IllegalStateException` usam esse formato. A padronização de outras falhas internas não está comprovada. A resposta de login retorna o JWT completo ao solicitante; as demais respostas não retornam senha ou hash.
 
 ## Autenticação e equipe
 
@@ -28,10 +28,10 @@
 |---|---|---|---|---|
 | `POST /auth/cadastro` | Pública; cria Cliente | nome, CPF, nascimento, e-mail e senha | `201` | `400`, `409` |
 | `POST /auth/login` | Pública | e-mail e senha | `200` com JWT | `400`, `401` |
-| `POST /usuarios` | Administrador | dados de Atendente/Cozinha e unidade | `201` | `400`, `401`, `403`, `409` |
+| `POST /usuarios` | Administrador | dados de Atendente/Cozinha e unidade | `201` | `400`, `401`, `403`, `404`, `409` |
 | `PATCH /usuarios/{id}/unidade` | Administrador | `unidadeId` | `200` | `400`, `401`, `403`, `404` |
 
-```json
+```text
 POST /auth/cadastro
 {
   "nome": "Ana Souza",
@@ -42,37 +42,38 @@ POST /auth/cadastro
 }
 ```
 
-```json
+```text
 201 Created
 {
-  "id": "usuario-1",
+  "id": "40000000-0000-0000-0000-000000000002",
   "nome": "Ana Souza",
-  "perfil": "CLIENTE"
+  "perfil": "CLIENTE",
+  "unidadeId": null
 }
 ```
 
-```json
+```text
 POST /auth/login
 { "email": "ana@example.com", "senha": "Senha123" }
 ```
 
-```json
+```text
 200 OK
-{ "token": "jwt", "expiraEm": "data/hora de expiração" }
+{ "token": "jwt", "expiraEm": "2030-01-01T13:00:00Z" }
 ```
 
-```json
+```text
 POST /usuarios
-{ "nome": "João Lima", "email": "joao@example.com", "perfil": "ATENDENTE", "unidadeId": "unidade-1", "senha": "Senha123" }
+{ "nome": "João Lima", "cpf": "11144477735", "dataNascimento": "1990-03-10", "email": "joao@example.com", "perfil": "ATENDENTE", "unidadeId": "10000000-0000-0000-0000-000000000001", "senha": "Senha123" }
 
 201 Created
-{ "id": "usuario-2", "perfil": "ATENDENTE", "unidadeId": "unidade-1" }
+{ "id": "40000000-0000-0000-0000-000000000003", "nome": "João Lima", "perfil": "ATENDENTE", "unidadeId": "10000000-0000-0000-0000-000000000001" }
 
-PATCH /usuarios/usuario-2/unidade
-{ "unidadeId": "unidade-2" }
+PATCH /usuarios/40000000-0000-0000-0000-000000000003/unidade
+{ "unidadeId": "10000000-0000-0000-0000-000000000002" }
 
 200 OK
-{ "id": "usuario-2", "unidadeId": "unidade-2" }
+{ "id": "40000000-0000-0000-0000-000000000003", "nome": "João Lima", "perfil": "ATENDENTE", "unidadeId": "10000000-0000-0000-0000-000000000002" }
 ```
 
 ## Unidades e cardápio
@@ -83,109 +84,117 @@ PATCH /usuarios/usuario-2/unidade
 | `GET /unidades/{id}` | Pública | `id` | `200` | `404` |
 | `GET /unidades/{id}/cardapio` | Pública | `id`, `page`, `limit` | `200` | `400`, `404` |
 
-```json
-GET /unidades/1/cardapio?page=1&limit=20
+```text
+GET /unidades/10000000-0000-0000-0000-000000000001/cardapio?page=1&limit=20
 ```
 
-```json
+```text
 200 OK
 {
-  "items": [{ "produtoId": "produto-1", "nome": "Cuscuz", "preco": 12.5 }],
+  "items": [{ "id": "20000000-0000-0000-0000-000000000001", "nome": "Cuscuz", "descricao": "Cuscuz nordestino", "preco": 12.5, "disponivel": true }],
   "page": 1,
   "limit": 20,
   "total": 1
 }
 ```
 
-```json
+```text
 GET /unidades?page=1&limit=20
 
 200 OK
-{ "items": [{ "id": "unidade-1", "nome": "Centro" }], "page": 1, "limit": 20, "total": 1 }
+{ "items": [{ "id": "10000000-0000-0000-0000-000000000001", "nome": "Unidade Centro", "endereco": "Rua do Centro, 100" }], "page": 1, "limit": 20, "total": 1 }
 ```
+
+Exemplo de consulta individual: `GET /unidades/10000000-0000-0000-0000-000000000001` retorna `200` com `id`, `nome` e `endereco`.
 
 ## Estoque
 
 | Método e rota | Permissão | Entrada ou parâmetros | Sucesso | Erros |
 |---|---|---|---|---|
-| `GET /estoque` | Administrador, Atendente ou Cozinha | `page`, `limit`; `unidadeId` apenas para Administrador | `200` | `400`, `401`, `403` |
+| `GET /estoque` | Administrador, Atendente ou Cozinha | `page`, `limit`; `unidadeId` apenas para Administrador | `200` | `400`, `401`, `403`, `404` |
 | `POST /estoque/movimentacoes` | Administrador | produtoUnidadeId, tipo, quantidade | `201` | `400`, `401`, `403`, `404`, `409` |
 
-```json
+```text
 POST /estoque/movimentacoes
-{ "produtoUnidadeId": "produto-unidade-1", "tipo": "ENTRADA", "quantidade": 10 }
+{ "produtoUnidadeId": "30000000-0000-0000-0000-000000000001", "tipo": "ENTRADA", "quantidade": 10 }
 ```
 
-```json
+```text
 201 Created
-{ "id": "movimento-1", "saldoAtual": 25 }
+{ "id": "50000000-0000-0000-0000-000000000002", "saldoAtual": 25 }
 ```
 
-```json
+```text
 GET /estoque?page=1&limit=20
 
 200 OK
-{ "items": [{ "produtoUnidadeId": "produto-unidade-1", "saldo": 25 }], "page": 1, "limit": 20, "total": 1 }
+{ "items": [{ "produtoUnidadeId": "30000000-0000-0000-0000-000000000001", "unidadeId": "10000000-0000-0000-0000-000000000001", "produtoId": "20000000-0000-0000-0000-000000000001", "nome": "Cuscuz", "saldo": 25 }], "page": 1, "limit": 20, "total": 1 }
 ```
 
 ## Pedidos
 
 | Método e rota | Permissão | Entrada ou parâmetros | Sucesso | Erros |
 |---|---|---|---|---|
-| `POST /pedidos` | Cliente para APP/WEB; Atendente da unidade para BALCAO | unidadeId, canalPedido, itens | `201` | `400`, `401`, `403`, `404`, `409`, `422` |
+| `POST /pedidos` | Cliente para APP/WEB; Atendente da unidade para BALCAO | unidadeId, canalPedido, itens | `201` | `400`, `401`, `403`, `404`, `409` |
 | `GET /pedidos` | Cliente, Atendente, Cozinha ou Administrador | `canalPedido`, `status`, `page`, `limit` | `200` | `400`, `401`, `403` |
 | `GET /pedidos/{id}` | Conforme propriedade, unidade e perfil | `id` | `200` | `401`, `403`, `404` |
 | `PATCH /pedidos/{id}/status` | Cozinha ou Atendente da unidade | status solicitado | `200` | `400`, `401`, `403`, `404`, `409` |
 | `POST /pedidos/{id}/cancelamento` | Cliente proprietário, Atendente da unidade ou Administrador | `id` | `200` | `401`, `403`, `404`, `409` |
 
-```json
+```text
 POST /pedidos
 {
-  "unidadeId": "unidade-1",
+  "unidadeId": "10000000-0000-0000-0000-000000000001",
   "canalPedido": "APP",
-  "itens": [{ "produtoUnidadeId": "produto-unidade-1", "quantidade": 2 }]
+  "itens": [{ "produtoUnidadeId": "30000000-0000-0000-0000-000000000001", "quantidade": 2 }]
 }
 ```
 
-```json
+```text
 201 Created
 {
-  "id": "pedido-1",
+  "id": "50000000-0000-0000-0000-000000000001",
+  "unidadeId": "10000000-0000-0000-0000-000000000001",
+  "clienteId": "40000000-0000-0000-0000-000000000002",
+  "criadorId": "40000000-0000-0000-0000-000000000002",
   "canalPedido": "APP",
   "status": "AGUARDANDO_PAGAMENTO",
   "situacaoPagamento": "PENDENTE",
-  "valorTotal": 25.0
+  "valorTotal": 25.0,
+  "itens": [{ "produtoUnidadeId": "30000000-0000-0000-0000-000000000001", "quantidade": 2, "precoUnitario": 12.5, "subtotal": 25.0 }]
 }
 ```
 
-```json
-PATCH /pedidos/pedido-1/status
+```text
+PATCH /pedidos/50000000-0000-0000-0000-000000000001/status
 { "status": "EM_PREPARO" }
 ```
 
-```json
+```text
 200 OK
-{ "id": "pedido-1", "status": "EM_PREPARO", "situacaoPagamento": "APROVADO" }
+{ "id": "50000000-0000-0000-0000-000000000001", "status": "EM_PREPARO", "situacaoPagamento": "APROVADO" }
 ```
 
-```json
+```text
 GET /pedidos?canalPedido=APP&status=AGUARDANDO_PAGAMENTO&page=1&limit=20
 
 200 OK
-{ "items": [{ "id": "pedido-1", "canalPedido": "APP", "status": "AGUARDANDO_PAGAMENTO" }], "page": 1, "limit": 20, "total": 1 }
+{ "items": [{ "id": "50000000-0000-0000-0000-000000000001", "canalPedido": "APP", "status": "AGUARDANDO_PAGAMENTO" }], "page": 1, "limit": 20, "total": 1 }
 
-GET /pedidos/pedido-1
-
-200 OK
-{ "id": "pedido-1", "itens": [{ "produtoUnidadeId": "produto-unidade-1", "quantidade": 2 }], "status": "AGUARDANDO_PAGAMENTO" }
-
-POST /pedidos/pedido-1/cancelamento
+GET /pedidos/50000000-0000-0000-0000-000000000001
 
 200 OK
-{ "id": "pedido-1", "status": "CANCELADO" }
+{ "id": "50000000-0000-0000-0000-000000000001", "itens": [{ "produtoUnidadeId": "30000000-0000-0000-0000-000000000001", "quantidade": 2 }], "status": "AGUARDANDO_PAGAMENTO" }
+
+POST /pedidos/50000000-0000-0000-0000-000000000001/cancelamento
+
+200 OK
+{ "id": "50000000-0000-0000-0000-000000000001", "status": "CANCELADO", "situacaoPagamento": "ESTORNADO" }
 ```
 
-Na listagem e consulta, Cliente acessa somente os próprios pedidos; Atendente e Cozinha acessam apenas sua unidade, aplicando a restrição de pagamento para pedidos APP/WEB; Administrador consulta a rede. O filtro não amplia o acesso do perfil.
+Os exemplos compactos de listagem e consulta mostram apenas campos selecionados; a estrutura completa do pedido aparece no exemplo de criação.
+
+Na listagem e consulta, Cliente acessa somente os próprios pedidos; Atendente e Cozinha acessam apenas sua unidade, sendo que a Cozinha vê pedidos APP/WEB somente após aprovação; Administrador consulta a rede. O filtro não amplia o acesso do perfil.
 
 ## Pagamento mock
 
@@ -193,29 +202,22 @@ Na listagem e consulta, Cliente acessa somente os próprios pedidos; Atendente e
 |---|---|---|---|---|
 | `POST /pedidos/{id}/pagamentos` | Cliente proprietário em APP/WEB; Atendente da unidade em BALCAO | `id` | `200` | `401`, `403`, `404`, `409` |
 
-```json
-POST /pedidos/pedido-1/pagamentos
+```text
+POST /pedidos/50000000-0000-0000-0000-000000000001/pagamentos
 ```
 
-```json
+```text
 200 OK
 {
-  "tentativaId": "tentativa-1",
+  "tentativaId": "60000000-0000-0000-0000-000000000001",
+  "pedidoId": "50000000-0000-0000-0000-000000000001",
   "resultado": "APROVADO",
   "situacaoPagamento": "APROVADO",
   "statusPedido": "RECEBIDO"
 }
 ```
 
-O adaptador envia ao gateway mock o identificador da tentativa, o identificador do pedido e o valor calculado. O retorno do mock registra aprovação, recusa ou falha. Recusa e falha preservam o status operacional e permitem nova tentativa; retorno repetido não duplica pagamento ou transição. Não há pagamento financeiro real.
-
-```json
-Payload enviado ao gateway mock
-{ "tentativaId": "tentativa-1", "pedidoId": "pedido-1", "valor": 25.0 }
-
-Retorno do gateway mock
-{ "tentativaId": "tentativa-1", "resultado": "APROVADO" }
-```
+O serviço passa ao adaptador local o identificador da tentativa, o identificador do pedido e o valor calculado. O adaptador retorna um resultado enum: aprovação, recusa ou falha. Recusa e falha preservam o status operacional e permitem nova tentativa; repetir a solicitação após aprovação não duplica o pagamento. Não há serviço HTTP externo, callback ou pagamento financeiro real.
 
 ## Cobertura conceitual
 
