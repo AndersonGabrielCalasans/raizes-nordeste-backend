@@ -93,7 +93,23 @@ O tipo pode ser `ENTRADA` ou `SAIDA`; quantidade deve ser inteira e positiva. A 
 }
 ```
 
-A API calcula os valores e baixa o estoque na criação. `GET /pedidos?page=1&limit=20&canalPedido=APP` e `GET /pedidos/{id}` exigem token e respeitam as regras de perfil, propriedade, unidade e visibilidade da Cozinha. Produtos indisponíveis ou saldo insuficiente retornam `409`. Pagamento e atualização de status ainda não estão implementados.
+A API calcula os valores e baixa o estoque na criação. `GET /pedidos?page=1&limit=20&canalPedido=APP` e `GET /pedidos/{id}` exigem token e respeitam as regras de perfil, propriedade, unidade e visibilidade da Cozinha. Produtos indisponíveis ou saldo insuficiente retornam `409`.
+
+### Pagamento, status e cancelamento
+
+`POST /pedidos/{id}/pagamentos` solicita o pagamento simulado sem corpo. Cliente paga o próprio pedido APP/WEB; Atendente paga pedido BALCAO de sua unidade. A resposta inclui `tentativaId`, `pedidoId`, `resultado`, `situacaoPagamento` e `statusPedido`. Repetir uma solicitação após aprovação retorna a mesma tentativa, sem novo pagamento. Recusa e falha permitem nova tentativa.
+
+O gateway é um adaptador mock local, sem cobrança real. Para simular o retorno, configure `RAIZES_PAGAMENTO_MOCK` no ambiente como `APROVADO` (padrão), `RECUSADO`, `FALHA` ou `TIMEOUT` e reinicie a API. O limite de espera é de cinco segundos; timeout gera resultado `FALHA`.
+
+`PATCH /pedidos/{id}/status` recebe, por exemplo:
+
+```json
+{ "status": "EM_PREPARO" }
+```
+
+Cozinha da unidade pode iniciar o preparo e depois marcar `PRONTO`; Atendente da unidade pode marcar `CONCLUIDO` somente quando o pedido estiver pronto e pago. Em BALCAO, o preparo pode iniciar antes do pagamento.
+
+`POST /pedidos/{id}/cancelamento` não exige corpo. Cliente proprietário, Atendente da unidade ou Administrador pode cancelar antes do preparo. O cancelamento devolve o estoque e registra estorno simulado quando houver aprovação; tentativa repetida retorna `409`.
 
 ## Respostas
 

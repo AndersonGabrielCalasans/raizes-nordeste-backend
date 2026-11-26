@@ -60,7 +60,10 @@ class OpenApiTest {
         assertEquals(200, response.statusCode());
         JsonNode documento = new ObjectMapper().readTree(response.body());
         JsonNode paths = documento.path("paths");
-        assertEquals(11, paths.size());
+        assertEquals(14, paths.size());
+        assertTrue(paths.path("/pedidos/{id}/pagamentos").path("post").has("security"));
+        assertTrue(paths.path("/pedidos/{id}/status").path("patch").has("security"));
+        assertTrue(paths.path("/pedidos/{id}/cancelamento").path("post").has("security"));
         assertTrue(paths.path("/pedidos").path("post").has("security"));
         assertTrue(paths.path("/pedidos").path("get").has("security"));
         assertTrue(paths.path("/pedidos/{id}").path("get").has("security"));
@@ -98,7 +101,9 @@ class OpenApiTest {
         assertTrue(documento.path("components").path("securitySchemes").size() > 0);
         for (var rota : new String[][] { { "/unidades", "get", "200" }, { "/unidades/{id}", "get", "200" }, { "/unidades/{id}/cardapio", "get", "200" },
                 { "/estoque", "get", "200" }, { "/estoque/movimentacoes", "post", "201" },
-                { "/pedidos", "get", "200" }, { "/pedidos", "post", "201" }, { "/pedidos/{id}", "get", "200" } }) {
+                { "/pedidos", "get", "200" }, { "/pedidos", "post", "201" }, { "/pedidos/{id}", "get", "200" },
+                { "/pedidos/{id}/pagamentos", "post", "200" }, { "/pedidos/{id}/status", "patch", "200" },
+                { "/pedidos/{id}/cancelamento", "post", "200" } }) {
             var operacao = paths.path(rota[0]).path(rota[1]);
             assertFalse(operacao.path("summary").asText().isBlank(), rota[0]);
             var json = operacao.path("responses").path(rota[2]).path("content").path("application/json");
@@ -109,6 +114,10 @@ class OpenApiTest {
         assertTrue(schemas.path("CadastroOperacional").path("required").toString().contains("unidadeId"));
         assertTrue(schemas.path("Login").path("required").toString().contains("senha"));
         assertTrue(schemas.path("Unidade").path("required").toString().contains("unidadeId"));
+        assertTrue(schemas.path("AlteracaoStatus").path("required").toString().contains("status"));
+        var statusBody = paths.path("/pedidos/{id}/status").path("patch").path("requestBody");
+        assertTrue(statusBody.path("required").asBoolean());
+        assertTrue(statusBody.path("content").path("application/json").path("examples").size() > 0);
         var swagger = client.send(HttpRequest.newBuilder(base.resolve("/q/swagger-ui/")).GET().build(), HttpResponse.BodyHandlers.discarding());
         assertEquals(200, swagger.statusCode());
     }
