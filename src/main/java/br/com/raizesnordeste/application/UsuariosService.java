@@ -46,6 +46,9 @@ public class UsuariosService {
     public record Token(String token, Instant expiraEm) {
     }
 
+    public record Autenticacao(Token token, UUID usuarioId) {
+    }
+
     public static FalhaAplicacao erro(int status, String codigo, String mensagem) {
         return new FalhaAplicacao(status, codigo, mensagem);
     }
@@ -83,6 +86,10 @@ public class UsuariosService {
     }
 
     public Token login(Login dados) {
+        return autenticar(dados).token();
+    }
+
+    public Autenticacao autenticar(Login dados) {
         if (dados == null || dados.email() == null || dados.email().isBlank() || dados.senha() == null
                 || dados.senha().isEmpty()) {
             throw erro(400, "DADOS_INVALIDOS", "Informe e-mail e senha.");
@@ -93,7 +100,7 @@ public class UsuariosService {
         }
         var registro = usuario.get();
         Instant expira = Instant.now().plusSeconds(3600).truncatedTo(java.time.temporal.ChronoUnit.SECONDS);
-        return new Token(credenciais.gerarToken(registro.id(), registro.perfil(), expira), expira);
+        return new Autenticacao(new Token(credenciais.gerarToken(registro.id(), registro.perfil(), expira), expira), registro.id());
     }
 
     @Transactional

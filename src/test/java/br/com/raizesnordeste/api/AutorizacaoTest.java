@@ -1,6 +1,7 @@
 package br.com.raizesnordeste.api;
 
 import br.com.raizesnordeste.application.UsuariosService;
+import br.com.raizesnordeste.domain.Auditoria;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -81,7 +82,14 @@ class AutorizacaoTest {
         }
 
         @Override
-        public Set<Class<?>> getEnabledAlternatives() { return Set.of(UsuariosFalsos.class); }
+        public Set<Class<?>> getEnabledAlternatives() { return Set.of(UsuariosFalsos.class, AuditoriaFalsa.class); }
+    }
+
+    @Alternative
+    @ApplicationScoped
+    public static class AuditoriaFalsa implements Auditoria {
+        static final java.util.Queue<Evento> EVENTOS = new java.util.concurrent.ConcurrentLinkedQueue<>();
+        public void registrar(Evento evento) { EVENTOS.add(evento); }
     }
 
     @Alternative
@@ -102,7 +110,10 @@ class AutorizacaoTest {
         }
 
         @Override
-        public Token login(Login dados) { return new Token("token-de-teste", Instant.now().plusSeconds(3600)); }
+        public Autenticacao autenticar(Login dados) {
+            if (dados.email().equals("invalido@example.com")) throw erro(401, "CREDENCIAIS_INVALIDAS", "Inválido");
+            return new Autenticacao(new Token("token-de-teste", Instant.now().plusSeconds(3600)), USUARIO_ID);
+        }
     }
 
     @BeforeEach
@@ -178,6 +189,25 @@ class AutorizacaoTest {
         var alteracao = enviar("PATCH", "/usuarios/" + USUARIO_ID + "/unidade", UNIDADE, jwt);
         assertEquals(200, alteracao.statusCode());
         assertEquals(2, UsuariosFalsos.ALTERACOES.get());
+    }
+
+    @Test
+    void registraLoginERecusasSemCredenciais() throws Exception {
+        AuditoriaFalsa.EVENTOS.clear();
+        assertEquals(200, enviar("POST", "/auth/login", "{\"email\":\"x@example.com\",\"senha\":\"Senha123\"}", null).statusCode());
+        assertTrue(AuditoriaFalsa.EVENTOS.stream().anyMatch(e -> e.operacao().equals("LOGIN")
+                && USUARIO_ID.equals(e.responsavelId()) && e.resultado().equals("SUCESSO")));
+        assertEquals(401, enviar("POST", "/auth/login", "{\"email\":\"invalido@example.com\",\"senha\":\"Senha123\"}", null).statusCode());
+        assertTrue(AuditoriaFalsa.EVENTOS.stream().anyMatch(e -> e.operacao().equals("LOGIN")
+                && e.responsavelId() == null && e.resultado().equals("RECUSADO")));
+        assertEquals(401, enviar("POST", "/usuarios", EQUIPE, null).statusCode());
+        String cliente = token("CLIENTE", Instant.now().plusSeconds(3600), chaveDeTeste());
+        assertEquals(403, enviar("POST", "/usuarios", EQUIPE, cliente).statusCode());
+        long limite = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
+        while (System.nanoTime() < limite && AuditoriaFalsa.EVENTOS.stream()
+                .filter(e -> e.operacao().equals("ACESSO_NEGADO")).count() < 2) Thread.sleep(50);
+        assertTrue(AuditoriaFalsa.EVENTOS.stream().anyMatch(e -> e.operacao().equals("ACESSO_NEGADO") && e.responsavelId() == null));
+        assertTrue(AuditoriaFalsa.EVENTOS.stream().anyMatch(e -> e.operacao().equals("ACESSO_NEGADO") && USUARIO_ID.equals(e.responsavelId())));
     }
 }
 
