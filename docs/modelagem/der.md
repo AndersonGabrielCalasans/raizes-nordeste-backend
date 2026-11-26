@@ -2,6 +2,8 @@
 
 [Voltar à modelagem](modelagem.md)
 
+O [DER em imagem](der-raizes-nordeste.png) apresenta as entidades e relações do banco.
+
 ```mermaid
 erDiagram
     USUARIO o{--o| UNIDADE : atua_em
@@ -106,7 +108,7 @@ erDiagram
 | Status | AGUARDANDO_PAGAMENTO, RECEBIDO, EM_PREPARO, PRONTO, CONCLUIDO e CANCELADO. As transições obedecem RF06 e RF08. |
 | Auditoria | Responsável pode ser nulo em evento sem identificação. Não armazena senha, hash, token completo ou dado pessoal completo. |
 
-O diagrama representa as relações do esquema criado pelas migrations Flyway. A exigência de pelo menos um item e a correspondência entre a unidade do pedido e a do produto são validadas pela aplicação; não são restrições independentes do PostgreSQL. CPF e data de nascimento são obrigatórios no cadastro pela API, embora as colunas aceitem nulos no esquema. A exportação do DER em imagem ou PDF integra a entrega acadêmica.
+O diagrama representa as relações do esquema criado pelas migrations Flyway. A exigência de pelo menos um item e a correspondência entre a unidade do pedido e a do produto são validadas pela aplicação; não são restrições independentes do PostgreSQL. CPF e data de nascimento são obrigatórios no cadastro pela API, embora as colunas aceitem nulos no esquema.
 
 Requisitos relacionados: RF01–RF08 e RNF01–RNF04, RNF07.
 
