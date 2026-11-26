@@ -12,6 +12,7 @@ Esta seção reúne a documentação técnica do backend da rede Raízes do Nord
 - [Arquitetura e contratos](#arquitetura-e-contratos)
 - [Testes](#testes)
 - [Privacidade](#privacidade)
+- [Entrega acadêmica](#entrega-acadêmica)
 
 ## Análise e requisitos
 
@@ -115,6 +116,12 @@ O [plano de desempenho e recuperação](testes/desempenho-recuperacao.md) aprese
 ## Privacidade
 
 A [análise de privacidade](privacidade/privacidade.md) reúne os dados tratados, finalidades, controles e limitações de consentimento e retenção.
+
+[Voltar ao topo](#documentação)
+
+## Entrega acadêmica
+
+O [documento acadêmico em PDF](entrega-academica/4591724_Projeto_Back_End.pdf) reúne requisitos, diagramas, contratos, segurança, resultados de testes e referências técnicas.
 
 [Voltar ao topo](#documentação)
 
