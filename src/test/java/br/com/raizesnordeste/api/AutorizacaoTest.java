@@ -2,8 +2,10 @@ package br.com.raizesnordeste.api;
 
 import br.com.raizesnordeste.application.UsuariosService;
 import br.com.raizesnordeste.application.CatalogoService;
+import br.com.raizesnordeste.application.FluxoPedidoService;
 import br.com.raizesnordeste.domain.Auditoria;
 import br.com.raizesnordeste.domain.RepositorioCatalogo;
+import br.com.raizesnordeste.domain.RepositorioFluxoPedido;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -84,7 +86,18 @@ class AutorizacaoTest {
         }
 
         @Override
-        public Set<Class<?>> getEnabledAlternatives() { return Set.of(UsuariosFalsos.class, AuditoriaFalsa.class, CatalogoFalso.class); }
+        public Set<Class<?>> getEnabledAlternatives() { return Set.of(UsuariosFalsos.class, AuditoriaFalsa.class, CatalogoFalso.class, FluxoFalso.class); }
+    }
+
+    @Alternative
+    @ApplicationScoped
+    public static class FluxoFalso extends FluxoPedidoService {
+        @Override public RepositorioFluxoPedido.Tentativa pagar(UUID usuario, UUID pedido) {
+            return new RepositorioFluxoPedido.Tentativa(USUARIO_ID, pedido, "APROVADO", "APROVADO", "RECEBIDO");
+        }
+        @Override public Estado cancelar(UUID usuario, UUID pedido) {
+            return new Estado(pedido, "CANCELADO", "ESTORNADO");
+        }
     }
 
     @Alternative
@@ -249,6 +262,16 @@ class AutorizacaoTest {
         var proibido = enviar("POST", "/usuarios", EQUIPE, cliente);
         assertEquals(403, proibido.statusCode());
         assertEquals("ACESSO_NEGADO", new ObjectMapper().readTree(proibido.body()).path("codigo").asText());
+    }
+
+    @Test
+    void pagamentoECancelamentoAceitamPostSemCorpoOuContentType() throws Exception {
+        String jwt = token("CLIENTE", Instant.now().plusSeconds(3600), chaveDeTeste());
+        for (String operacao : new String[] { "pagamentos", "cancelamento" }) {
+            var request = HttpRequest.newBuilder(base.resolve("/pedidos/" + USUARIO_ID + "/" + operacao))
+                    .header("Authorization", "Bearer " + jwt).POST(HttpRequest.BodyPublishers.noBody()).build();
+            assertEquals(200, CLIENTE.send(request, HttpResponse.BodyHandlers.ofString()).statusCode());
+        }
     }
 }
 

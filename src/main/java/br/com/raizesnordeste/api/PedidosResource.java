@@ -1,8 +1,10 @@
 package br.com.raizesnordeste.api;
 
 import br.com.raizesnordeste.application.FalhaAplicacao;
+import br.com.raizesnordeste.application.FluxoPedidoService;
 import br.com.raizesnordeste.application.PedidosService;
 import br.com.raizesnordeste.domain.Auditoria;
+import br.com.raizesnordeste.domain.RepositorioFluxoPedido;
 import br.com.raizesnordeste.domain.RepositorioPedidos;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -29,6 +31,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 public class PedidosResource {
     @Inject
     PedidosService pedidos;
+    @Inject
+    FluxoPedidoService fluxo;
     @Inject
     JsonWebToken jwt;
     @Inject
@@ -83,5 +87,40 @@ public class PedidosResource {
     @APIResponse(responseCode = "404", description = "Pedido inexistente")
     public RepositorioPedidos.Pedido buscar(@Parameter(description = "UUID do pedido", required = true, example = "50000000-0000-0000-0000-000000000001") @PathParam("id") UUID id) {
         return auditarRecusa(id, () -> pedidos.buscar(usuario(), id));
+    }
+
+    @POST
+    @Path("/{id}/pagamentos")
+    @Consumes(MediaType.WILDCARD)
+    @Operation(summary = "Solicitar pagamento simulado", description = "Cliente proprietário em APP/WEB ou Atendente da unidade em BALCAO. Não realiza cobrança real; repetir uma aprovação retorna a mesma tentativa.")
+    @APIResponse(responseCode = "200", description = "Resultado da tentativa mock", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "Pagamento aprovado", value = "{\"tentativaId\":\"60000000-0000-0000-0000-000000000001\",\"pedidoId\":\"50000000-0000-0000-0000-000000000001\",\"resultado\":\"APROVADO\",\"situacaoPagamento\":\"APROVADO\",\"statusPedido\":\"RECEBIDO\"}")))
+    @APIResponse(responseCode = "401", description = "Token ausente ou inválido")
+    @APIResponse(responseCode = "403", description = "Pagamento não autorizado")
+    @APIResponse(responseCode = "404", description = "Pedido inexistente")
+    @APIResponse(responseCode = "409", description = "Pedido finalizado")
+    public RepositorioFluxoPedido.Tentativa pagar(@Parameter(description = "UUID do pedido", required = true, example = "50000000-0000-0000-0000-000000000001") @PathParam("id") UUID id) {
+        return auditarRecusa(id, () -> fluxo.pagar(usuario(), id));
+    }
+
+    @PATCH
+    @Path("/{id}/status")
+    @Operation(summary = "Atualizar status operacional", description = "Cozinha inicia preparo e marca pronto; Atendente conclui quando pronto e pago. Ambos atuam na própria unidade.")
+    @RequestBody(required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = FluxoPedidoService.AlteracaoStatus.class), examples = @ExampleObject(name = "Iniciar preparo", value = "{\"status\":\"EM_PREPARO\"}")))
+    @APIResponse(responseCode = "200", description = "Status atualizado", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "Em preparo", value = "{\"id\":\"50000000-0000-0000-0000-000000000001\",\"status\":\"EM_PREPARO\",\"situacaoPagamento\":\"APROVADO\"}")))
+    @APIResponse(responseCode = "400", description = "Status inválido") @APIResponse(responseCode = "401", description = "Token ausente ou inválido")
+    @APIResponse(responseCode = "403", description = "Perfil ou unidade sem permissão") @APIResponse(responseCode = "404", description = "Pedido inexistente") @APIResponse(responseCode = "409", description = "Transição não permitida")
+    public FluxoPedidoService.Estado atualizarStatus(@Parameter(description = "UUID do pedido", required = true, example = "50000000-0000-0000-0000-000000000001") @PathParam("id") UUID id, FluxoPedidoService.AlteracaoStatus dados) {
+        return auditarRecusa(id, () -> fluxo.atualizarStatus(usuario(), id, dados));
+    }
+
+    @POST
+    @Path("/{id}/cancelamento")
+    @Consumes(MediaType.WILDCARD)
+    @Operation(summary = "Cancelar pedido", description = "Cliente proprietário, Atendente da unidade ou Administrador pode cancelar antes do preparo; restitui estoque e simula estorno quando pago.")
+    @APIResponse(responseCode = "200", description = "Pedido cancelado", content = @Content(mediaType = "application/json", examples = @ExampleObject(name = "Cancelamento", value = "{\"id\":\"50000000-0000-0000-0000-000000000001\",\"status\":\"CANCELADO\",\"situacaoPagamento\":\"ESTORNADO\"}")))
+    @APIResponse(responseCode = "401", description = "Token ausente ou inválido") @APIResponse(responseCode = "403", description = "Cancelamento não autorizado")
+    @APIResponse(responseCode = "404", description = "Pedido inexistente") @APIResponse(responseCode = "409", description = "Cancelamento não permitido")
+    public FluxoPedidoService.Estado cancelar(@Parameter(description = "UUID do pedido", required = true, example = "50000000-0000-0000-0000-000000000001") @PathParam("id") UUID id) {
+        return auditarRecusa(id, () -> fluxo.cancelar(usuario(), id));
     }
 }
