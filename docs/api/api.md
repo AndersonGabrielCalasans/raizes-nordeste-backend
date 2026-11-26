@@ -81,9 +81,23 @@ A resposta contém `token` e `expiraEm`. O token vale 60 minutos.
 
 O tipo pode ser `ENTRADA` ou `SAIDA`; quantidade deve ser inteira e positiva. A resposta retorna o identificador do movimento e `saldoAtual`. Saída superior ao saldo retorna `409` sem alteração.
 
+### Criação e consulta de pedidos
+
+`POST /pedidos` exige token de Cliente para `APP` ou `WEB`, ou de Atendente para `BALCAO` em sua unidade:
+
+```json
+{
+  "unidadeId": "10000000-0000-0000-0000-000000000001",
+  "canalPedido": "APP",
+  "itens": [{ "produtoUnidadeId": "30000000-0000-0000-0000-000000000001", "quantidade": 2 }]
+}
+```
+
+A API calcula os valores e baixa o estoque na criação. `GET /pedidos?page=1&limit=20&canalPedido=APP` e `GET /pedidos/{id}` exigem token e respeitam as regras de perfil, propriedade, unidade e visibilidade da Cozinha. Produtos indisponíveis ou saldo insuficiente retornam `409`. Pagamento e atualização de status ainda não estão implementados.
+
 ## Respostas
 
-Cadastro retorna `201`; login e alteração de unidade retornam `200`. Dados inválidos retornam `400`, token ausente ou inválido `401`, perfil sem permissão `403`, usuário ou unidade inexistente `404` e CPF/e-mail duplicado `409`, conforme a operação. Erros de validação retornam `codigo`, `mensagem` e `detalhes`; a mensagem de CPF, e-mail ou senha inválidos não identifica o campo específico.
+Cadastro retorna `201`; login e alteração de unidade retornam `200`. Dados inválidos retornam `400`, token ausente ou inválido `401`, perfil sem permissão `403`, usuário ou unidade inexistente `404` e CPF/e-mail duplicado `409`, conforme a operação. Erros de regras de negócio e as recusas de segurança retornam `codigo`, `mensagem` e `detalhes`; a mensagem de CPF, e-mail ou senha inválidos não identifica o campo específico.
 
 ## Auditoria
 

@@ -28,7 +28,8 @@ public class AuditoriaSeguranca {
         if (contexto == null) return;
         String caminho = contexto.request().path();
         String recurso = caminho.equals("/usuarios") || caminho.startsWith("/usuarios/") ? "USUARIO"
-                : caminho.equals("/estoque") || caminho.startsWith("/estoque/") ? "ESTOQUE" : null;
+                : caminho.equals("/estoque") || caminho.startsWith("/estoque/") ? "ESTOQUE"
+                : caminho.equals("/pedidos") || caminho.startsWith("/pedidos/") ? "PEDIDO" : null;
         if (recurso == null) return;
         UUID responsavel = null;
         if (evento.getSecurityIdentity() != null && !evento.getSecurityIdentity().isAnonymous()) {

@@ -236,5 +236,19 @@ class AutorizacaoTest {
         assertEquals(201, enviar("POST", "/estoque/movimentacoes", movimento, admin).statusCode());
         assertEquals(400, enviar("POST", "/estoque/movimentacoes", movimento.replace(":1}", ":1.5}"), admin).statusCode());
     }
+
+    @Test
+    void errosDeSegurancaUsamJsonPadronizado() throws Exception {
+        var semToken = enviar("GET", "/pedidos", "", null);
+        assertEquals(401, semToken.statusCode());
+        assertEquals("NAO_AUTENTICADO", new ObjectMapper().readTree(semToken.body()).path("codigo").asText());
+        var tokenInvalido = enviar("GET", "/pedidos", "", "invalido");
+        assertEquals(401, tokenInvalido.statusCode());
+        assertEquals("NAO_AUTENTICADO", new ObjectMapper().readTree(tokenInvalido.body()).path("codigo").asText());
+        String cliente = token("CLIENTE", Instant.now().plusSeconds(3600), chaveDeTeste());
+        var proibido = enviar("POST", "/usuarios", EQUIPE, cliente);
+        assertEquals(403, proibido.statusCode());
+        assertEquals("ACESSO_NEGADO", new ObjectMapper().readTree(proibido.body()).path("codigo").asText());
+    }
 }
 
