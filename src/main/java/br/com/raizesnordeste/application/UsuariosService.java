@@ -7,6 +7,7 @@ import br.com.raizesnordeste.domain.RepositorioUsuarios;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -22,16 +23,20 @@ public class UsuariosService {
     @Inject
     Credenciais credenciais;
 
+    @Schema(requiredProperties = { "nome", "cpf", "dataNascimento", "email", "senha" })
     public record Cadastro(String nome, String cpf, LocalDate dataNascimento, String email, String senha) {
     }
 
+    @Schema(requiredProperties = { "nome", "cpf", "dataNascimento", "email", "senha", "perfil", "unidadeId" })
     public record CadastroOperacional(String nome, String cpf, LocalDate dataNascimento, String email, String senha,
             String perfil, UUID unidadeId) {
     }
 
+    @Schema(requiredProperties = { "email", "senha" })
     public record Login(String email, String senha) {
     }
 
+    @Schema(requiredProperties = { "unidadeId" })
     public record Unidade(UUID unidadeId) {
     }
 
